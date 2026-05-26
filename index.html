@@ -1,1 +1,220 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kopyra Splash Screen</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"><style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
 
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#0f172a,#1e293b,#312e81);
+    overflow:hidden;
+}
+.container{
+    text-align:center;
+    animation:fadeIn 2s ease;
+    padding:20px;
+}
+
+.title{
+    margin-top:25px;
+    font-size:clamp(35px,8vw,55px);
+}
+
+.tagline{
+    margin-top:10px;
+    font-size:clamp(14px,4vw,18px);
+}
+
+.logo{
+    width:min(140px,35vw);
+    height:min(140px,35vw);
+}
+.container{
+    text-align:center;
+    animation:fadeIn 2s ease;
+}
+
+.logo{
+    width:140px;
+    height:140px;
+    border-radius:50%;
+    object-fit:cover;
+    border:4px solid white;
+    box-shadow:0 0 30px rgba(255,255,255,0.4);
+    animation:zoom 2s infinite alternate;
+}
+
+.title{
+    margin-top:25px;
+    font-size:55px;
+    font-weight:700;
+    color:white;
+    letter-spacing:3px;
+    animation:slideUp 2s ease;
+}
+
+.tagline{
+    margin-top:10px;
+    font-size:18px;
+    color:#dbeafe;
+    letter-spacing:1px;
+    animation:fadeText 3s infinite;
+}
+
+.loader{
+    margin:30px auto;
+    width:220px;
+    height:6px;
+    background:rgba(255,255,255,0.2);
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.loader span{
+    display:block;
+    width:0%;
+    height:100%;
+    background:white;
+    animation:load 4s linear forwards;
+}
+
+#percent{
+    margin-top:10px;
+    color:white;
+    font-size:18px;
+    font-weight:600;
+}
+
+@keyframes zoom{
+    from{
+        transform:scale(1);
+    }
+    to{
+        transform:scale(1.08);
+    }
+}
+
+@keyframes slideUp{
+    from{
+        opacity:0;
+        transform:translateY(40px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+    }
+    to{
+        opacity:1;
+    }
+}
+
+@keyframes fadeText{
+    0%{
+        opacity:0.5;
+    }
+    50%{
+        opacity:1;
+    }
+    100%{
+        opacity:0.5;
+    }
+}
+
+@keyframes load{
+    from{
+        width:0%;
+    }
+    to{
+        width:100%;
+    }
+}
+
+.bg-circle{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,0.06);
+    animation:float 10s infinite linear;
+}
+
+.c1{
+    width:220px;
+    height:220px;
+    top:-50px;
+    left:-50px;
+}
+
+.c2{
+    width:300px;
+    height:300px;
+    bottom:-100px;
+    right:-100px;
+}
+
+@keyframes float{
+    0%{
+        transform:translateY(0px) rotate(0deg);
+    }
+    100%{
+        transform:translateY(-20px) rotate(360deg);
+    }
+}
+</style></head>
+<body><div class="bg-circle c1"></div>
+<div class="bg-circle c2"></div><div class="container"><img src="C:\Users\HP\Desktop\Kopyro\Kopyro.jpeg" class="logo">
+
+<div class="title">KOPYRA</div>
+
+<div class="tagline">Assignments Made Easy</div>
+<div class="loader">
+    <span id="progressBar"></span>
+</div>
+
+<div id="percent">0%</div>
+
+</div></body>
+<script>
+
+let progress = 0;
+
+let bar = document.getElementById("progressBar");
+let percent = document.getElementById("percent");
+
+let interval = setInterval(function(){
+
+    progress++;
+
+    bar.style.width = progress + "%";
+
+    percent.innerHTML = progress + "%";
+
+    if(progress == 100){
+
+        clearInterval(interval);
+
+        setTimeout(function(){
+
+            window.location.href = "login.html";
+
+        },500);
+
+    }
+
+},40);
+
+</script>
+</html>
