@@ -22,7 +22,21 @@ body{
     align-items:center;
     background:linear-gradient(135deg,#0f172a,#1e293b,#312e81);
 }
+.developer{
+    margin-top:25px;
+    padding-top:20px;
+    border-top:1px solid rgba(255,255,255,0.15);
+    font-size:11px;
+    opacity:0.6;
+    letter-spacing:0.5px;
+}
 
+.developer span{
+    display:block;
+    margin-top:3px;
+    font-weight:300;
+    opacity:0.8;
+}
 /* APP SCREEN CARD */
 .app{
     width:340px;
@@ -151,7 +165,11 @@ button:hover{
 
     <div id="msg"></div>
     <div class="loading" id="loading">Please wait...</div>
-
+        <!-- Add this HTML inside the .app div, after the loading div -->
+<div class="developer">
+    Developer Tonmoy Kumar Deb
+    <span>Made in Guwahati</span>
+</div>
 </div>
 
 <script type="module">
