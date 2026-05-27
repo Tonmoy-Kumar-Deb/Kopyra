@@ -239,6 +239,15 @@ window.login = function(){
         msg.innerText = "Invalid login";
     });
 }
+    document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("keydown", function(e){
+    if(e.ctrlKey && (e.key === "u" || e.key === "U")){
+        e.preventDefault();
+    }
+    if(e.key === "F12"){
+        e.preventDefault();
+    }
+});
 </script>
 
 </body>
