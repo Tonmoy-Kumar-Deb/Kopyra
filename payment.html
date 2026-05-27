@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment - Kopyra</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:Poppins;
+  background:linear-gradient(135deg,#0f172a,#1e293b);
+  color:#fff;
+  padding:20px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.back{
+  background:rgba(255,255,255,0.1);
+  border:none;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.searchBox{
+  display:flex;
+  overflow:hidden;
+  border-radius:12px;
+  background:rgba(255,255,255,0.12);
+  margin-bottom:20px;
+}
+
+.searchBox input{
+  flex:1;
+  padding:12px;
+  border:none;
+  outline:none;
+  background:transparent;
+  color:#fff;
+}
+
+.searchBox button{
+  padding:12px 16px;
+  border:none;
+  background:#2563eb;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* BILL */
+.bill{
+  background:rgba(255,255,255,0.08);
+  padding:18px;
+  border-radius:16px;
+  margin-top:10px;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  margin:6px 0;
+}
+
+.badge{
+  padding:5px 10px;
+  border-radius:999px;
+  font-size:12px;
+}
+
+.pending{background:#f59e0b33;color:#fbbf24}
+.accepted{background:#2563eb33;color:#60a5fa}
+.completed{background:#22c55e33;color:#4ade80}
+.delivered{background:#10b98133;color:#34d399}
+.rejected{background:#ef444433;color:#f87171}
+
+.subject{
+  display:flex;
+  justify-content:space-between;
+  margin:6px 0;
+  padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+.total{
+  font-size:18px;
+  font-weight:700;
+  margin-top:10px;
+}
+
+.pay{
+  margin-top:15px;
+  padding:12px;
+  background:#16a34a;
+  border:none;
+  color:#fff;
+  border-radius:12px;
+  width:100%;
+  font-weight:700;
+}
+
+.small{
+  font-size:12px;
+  opacity:0.7;
+  margin-top:10px;
+  text-align:center;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:800;
+  text-align:center;
+  margin-bottom:5px;
+}
+
+.tag{
+  font-size:12px;
+  text-align:center;
+  opacity:0.7;
+}
+</style>
+</head>
+
+<body>
+
+<div class="top">
+  <button class="back" onclick="history.back()">← Back</button>
+  <div>Payment</div>
+</div>
+
+<div class="searchBox">
+  <input id="tokenInput" placeholder="Enter Token Number">
+  <button onclick="search()">🔍</button>
+</div>
+
+<div id="result"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "kopyra-34598.firebaseapp.com",
+  databaseURL: "https://kopyra-34598-default-rtdb.firebaseio.com",
+  projectId: "kopyra-34598"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let currentData = null;
+
+/* SEARCH */
+function search(){
+  const token = document.getElementById("tokenInput").value.trim();
+  if(!token) return;
+
+  db.ref("Bookings/" + token).on("value", snap=>{
+    const data = snap.val();
+    const box = document.getElementById("result");
+
+    if(!data){
+      box.innerHTML = "<div class='bill'>No order found</div>";
+      return;
+    }
+
+    currentData = data;
+
+    let status = data.status || "Pending";
+
+    let extra = data.extraCharges || 0;
+    let total = data.totalAmount || 0;
+    let amountSet = total > 0;
+
+    let advance = Math.round(total * 0.5);
+    let final = advance + Number(extra);
+
+    let subjects = data.subjects || [];
+
+    /* ================= LOGIC FIX ================= */
+
+    let message = "";
+    let showTotal = true;
+    let payText = "Pay Via Your UPI Application";
+
+    if(status === "Accepted" && amountSet){
+      message = "📄 Bill is ready, proceed to advance payment";
+      payText = "Payment via your UPI app";
+    }
+    else if(status === "Completed" && !amountSet){
+  message = "⏳ Final bill coming soon";
+  showTotal = false;
+}
+   else if(status === "Completed" && amountSet){
+  message = "💰 Your bill is ready, proceed to final payment";
+}
+    else if(status === "Accepted"){
+      message = "📄 Your advance bill will be generated after price update";
+      showTotal = false;
+    }
+    else if(status === "Pending"){
+      message = "⏳ Very soon you will get your pending payment bill.";
+      showTotal = false;
+    }
+    else if(status === "Rejected"){
+      message = "❌ This work has been rejected by the owner.";
+      showTotal = false;
+    }
+    else if(status === "Delivered"){
+      message = "🎉 Thank you for using Kopyra!";
+    }
+
+    /* ================= UI ================= */
+
+    box.innerHTML = `
+      <div class="bill">
+
+        <div class="logo">KOPYRA</div>
+        <div class="tag">Assignments made easy</div>
+
+        <h3 style="margin-top:10px">${data.customerName || "Customer"}</h3>
+
+        <div class="row"><span>Token</span><span>${token}</span></div>
+        <div class="row"><span>Status</span><span class="badge ${status.toLowerCase()}">${status}</span></div>
+
+        <p style="margin:10px 0">${message}</p>
+
+        <hr style="opacity:0.2">
+
+        <h4>Subjects</h4>
+        ${subjects.map(s=>`
+          <div class="subject">
+            <span>${s.name}</span>
+            <span>₹${s.price || 0}</span>
+          </div>
+        `).join("")}
+
+        <hr style="opacity:0.2">
+
+        <div class="row"><span>Advance (50%)</span><span>₹${advance}</span></div>
+        <div class="row"><span>Extra Charges</span><span>₹${extra}</span></div>
+
+        ${showTotal ? `<div class="total">Total Payable: ₹${final}</div>` : ""}
+
+       <div class="row">
+  <span>Date</span>
+  <span>
+    ${data.updatedAt 
+      ? new Date(data.updatedAt).toLocaleString() 
+      : "Not updated yet"}
+  </span>
+</div>
+
+        <hr style="opacity:0.2">
+
+        <div class="row"><span>UPI ID</span><span>${data.upiId || "not set"}</span></div>
+
+        <button class="pay">${payText}</button>
+
+        <div class="small">Assignments made easy</div>
+      </div>
+    `;
+  });
+}
+</script>
+
+</body>
+  </html>
