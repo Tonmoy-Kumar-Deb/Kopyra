@@ -8,6 +8,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
+html, body{
+    overflow: hidden;
+    user-select: none;
+}
+    input{
+    user-select: text;
+}
 *{
     margin:0;
     padding:0;
@@ -16,6 +23,7 @@
 }
 
 body{
+    overflow: hidden;
     height:100vh;
     display:flex;
     justify-content:center;
@@ -39,15 +47,15 @@ body{
 }
 /* APP SCREEN CARD */
 .app{
-    width:340px;
-    background:rgba(255,255,255,0.08);
-    backdrop-filter:blur(15px);
-    border-radius:25px;
-    padding:30px 20px;
-    text-align:center;
-    color:white;
-    box-shadow:0 0 40px rgba(0,0,0,0.4);
-    animation:fadeIn 1s ease;
+    width: 340px;
+    max-width: 90%;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    padding: 30px 20px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 
 /* LOGO */
