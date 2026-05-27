@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Kopyra Appointment</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* POPUP */
+
+.popup{
+    position:fixed;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background:rgba(0,0,0,0.6);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+
+    z-index:9999;
+}
+
+/* POPUP BOX */
+
+.popup-box{
+    width:90%;
+    max-width:340px;
+
+    background:rgba(255,255,255,0.10);
+
+    backdrop-filter:blur(14px);
+
+    border-radius:22px;
+
+    padding:25px;
+
+    text-align:center;
+
+    color:white;
+}
+
+/* TOKEN */
+
+.popup-code{
+    margin-top:15px;
+
+    font-size:22px;
+    font-weight:700;
+
+    color:#38bdf8;
+
+    word-break:break-word;
+}
+
+/* TEXT */
+
+.popup-text{
+    margin-top:8px;
+    opacity:0.8;
+}
+
+/* BUTTON */
+
+.copy-popup-btn,
+.close-btn{
+
+    width:100%;
+
+    padding:13px;
+
+    border:none;
+
+    border-radius:14px;
+
+    margin-top:15px;
+
+    color:white;
+
+    font-size:14px;
+    font-weight:600;
+
+    cursor:pointer;
+}
+
+.copy-popup-btn{
+    background:#0ea5e9;
+}
+
+.close-btn{
+    background:#475569;
+}
+html,body{
+    width:100%;
+    min-height:100vh;
+    overflow-x:hidden;
+}
+
+.copy-btn{
+    width:100%;
+
+    margin-top:12px;
+
+    padding:12px;
+
+    border:none;
+    border-radius:12px;
+
+    background:#0ea5e9;
+
+    color:white;
+
+    font-size:14px;
+    font-weight:600;
+
+    cursor:pointer;
+}
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+body{
+    background:linear-gradient(135deg,#0f172a,#1e293b,#312e81);
+    color:white;
+    overflow-y:auto;
+}
+
+/* TOP HOME BUTTON */
+
+.home-btn{
+    margin:15px 15px 0 15px;
+    padding:10px 16px;
+
+    border:none;
+    border-radius:12px;
+
+    background:rgba(255,255,255,0.12);
+
+    color:white;
+
+    font-size:14px;
+    font-weight:600;
+
+    cursor:pointer;
+
+    backdrop-filter:blur(10px);
+}
+
+/* MAIN CONTAINER */
+
+.container{
+    width:100%;
+    max-width:600px;
+
+    margin:auto;
+
+    padding:70px 15px 40px;
+}
+
+/* NOTICE */
+
+.notice{
+    background:#2563eb;
+
+    padding:14px;
+
+    border-radius:14px;
+
+    margin-bottom:18px;
+
+    font-size:14px;
+    font-weight:500;
+
+    text-align:center;
+}
+
+/* SECTION BOX */
+
+.section{
+    display:none;
+
+    background:rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(12px);
+
+    border-radius:20px;
+
+    padding:20px;
+
+    margin-bottom:20px;
+
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+.section.active{
+    display:block;
+}
+
+/* TITLES */
+
+h2{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+h3{
+    margin-bottom:16px;
+}
+
+/* LABEL */
+
+label{
+    display:block;
+
+    margin-bottom:6px;
+
+    font-size:13px;
+
+    opacity:0.9;
+}
+
+/* INPUT */
+
+input,select{
+    width:100%;
+    
+    padding:13px;
+    
+    margin-bottom:14px;
+
+    border:none;
+    outline:none;
+
+    border-radius:12px;
+
+    background:rgba(255,255,255,0.12);
+
+    color:white;
+    appearance:none;
+    -webkit-appearance:none;
+    font-size:14px;
+}
+option{
+    background:#1e293b;
+    color:white;
+}
+
+
+/* BUTTON GROUP */
+
+.btn-group{
+    display:flex;
+    gap:12px;
+    margin-top:12px;
+}
+
+/* BUTTON */
+
+button{
+    flex:1;
+
+    padding:14px;
+
+    border:none;
+    border-radius:14px;
+
+    color:white;
+
+    font-size:14px;
+    font-weight:600;
+
+    cursor:pointer;
+}
+
+.next-btn{
+    background:#2563eb;
+}
+
+.back-btn{
+    background:#475569;
+}
+
+.submit-btn{
+    background:#16a34a;
+}
+
+/* TOKEN */
+
+/* FIX DROPDOWN STYLING */
+select {
+    width: 100% !important;
+    padding: 13px !important;
+    margin-bottom: 14px !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 12px !important;
+    background: rgba(255,255,255,0.12) !important;
+    color: white !important;
+    font-size: 14px !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+}
+
+select option {
+    background: #1e293b !important;
+    color: white !important;
+}
+
+</style>
+</head>
+
+<body>
+
+<button class="home-btn" onclick="goHome()">
+← Back
+</button>
+
+<div class="container">
+<h2>Book Appointment</h2>
+<div class="notice">
+Submit your references to the WhatsApp number given in the Kopyra.
+</div>
+
+
+
+<!-- PERSONAL DETAILS -->
+
+<div class="section active" id="section1">
+
+<h3>Personal Details</h3>
+
+<label>Full Name</label>
+<input type="text" id="fullName">
+
+<label>Class / Department</label>
+<input type="text" id="department" placeholder="Be specific">
+
+<label>Section (Optional)</label>
+<input type="text" id="section">
+
+<label>Roll Number</label>
+<input type="text" id="roll" placeholder="Be specific">
+
+<label>Semester (UG / PG)</label>
+<input type="text" id="semester">
+
+<label>WhatsApp Number</label>
+<input type="text" id="phone" maxlength="10" placeholder="10 digits">
+
+<label>Institute Name</label>
+<input type="text" id="institute" placeholder="Be specific">
+
+<label>Institute Address with Pincode</label>
+<input type="text" id="address" placeholder="Full address">
+
+<div class="btn-group">
+<button class="next-btn" onclick="nextSection(2)">
+Next
+</button>
+</div>
+
+</div>
+
+<!-- WORK DETAILS -->
+
+<div class="section" id="section2">
+
+<h3>Work Details (Maximum 3 Subjects)</h3>
+
+<label>How Many Subjects?</label>
+
+<select id="subjectCount" onchange="generateSubjects()">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+</select>
+
+<div id="subjectsArea"></div>
+
+<div class="btn-group">
+
+<button class="back-btn" onclick="prevSection(1)">
+Back
+</button>
+
+<button class="next-btn" onclick="nextSection(3)">
+Next
+</button>
+
+</div>
+
+</div>
+
+<!-- ADDITIONAL CHARGES -->
+
+<div class="section" id="section3">
+
+<h3>Additional Charges</h3>
+
+<label>Payment Mode</label>
+
+<select>
+<option>Cash</option>
+<option>UPI</option>
+</select>
+
+<div style="margin-top:15px; line-height:30px;">
+
+✔ Staple Binding = Free<br>
+✔ Stick File = ₹10<br>
+✔ Spiral Binding = ₹30<br>
+✔ Page Number = ₹2<br>
+✔ 4 Side Border = ₹4<br>
+✔ Black & White Print = ₹5/page<br>
+✔ Colour Print = ₹12/page<br>
+✔ Urgent Work = ₹30 Extra<br>
+
+</div>
+
+<div class="btn-group">
+
+<button class="back-btn" onclick="prevSection(2)">
+Back
+</button>
+
+<button class="submit-btn" onclick="submitBooking()">
+Submit
+</button>
+
+</div>
+
+
+
+</div>
+
+</div>
+<div class="popup" id="popup">
+    <div class="popup-box">
+        <h3 id="popupTitle">Booking Submitted</h3>
+        <p class="popup-text" id="popupText">Your booking token is</p>
+        <div class="popup-code" id="popupCode"></div>
+        <button class="copy-popup-btn" onclick="copyToken()" id="copyText">Copy Code</button>
+        <button class="close-btn" onclick="closePopup()">Close</button>
+    </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyDuM6XcepcHyOiewj8zdnaB-6D8X2SWMM0",
+    authDomain: "kopyra-34598.firebaseapp.com",
+    databaseURL: "https://kopyra-34598-default-rtdb.firebaseio.com",
+    projectId: "kopyra-34598"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+/* HOME */
+
+function goHome(){
+
+    window.location.href = "home.html";
+
+}
+
+/* NEXT */
+
+function nextSection(id){
+    document.querySelectorAll(".section").forEach(sec => {
+        sec.classList.remove("active");
+    });
+
+    document.getElementById("section"+id).classList.add("active");
+}
+
+/* BACK */
+
+function prevSection(id){
+    document.querySelectorAll(".section").forEach(sec => {
+        sec.classList.remove("active");
+    });
+
+    document.getElementById("section"+id).classList.add("active");
+}
+
+/* SUBJECT GENERATOR */
+
+function generateSubjects(){
+
+    let count = document.getElementById("subjectCount").value;
+    let area = document.getElementById("subjectsArea");
+    area.innerHTML = "";
+
+    for(let i=1;i<=count;i++){
+
+        area.innerHTML += `
+
+        <div style="margin-top:20px; padding:15px; background:rgba(255,255,255,0.05); border-radius:14px;">
+
+        <h4 style="margin-bottom:15px;">Subject ${i}</h4>
+
+        <label>Subject Name</label>
+        <input type="text" id="subject${i}">
+
+        <label>What do you want?</label>
+        <select id="stype${i}">
+            <option>Assignment</option>
+            <option>Practical File</option>
+            <option>Other</option>
+        </select>
+
+        <label>Binding</label>
+        <select id="sbinding${i}">
+            <option>Staple (Free)</option>
+            <option>Stick File (+₹10)</option>
+            <option>Spiral Binding (+₹30)</option>
+            <option>None</option>
+        </select>
+
+        <label>Needs Page Number?</label>
+        <select id="spage${i}">
+            <option>No</option>
+            <option>Yes (+₹2)</option>
+        </select>
+
+        <label>Border</label>
+        <select id="sborder${i}">
+            <option>No Border</option>
+            <option>Normal 2 Side (Free)</option>
+            <option>4 Side Border (+₹4)</option>
+        </select>
+
+        <label>How should it be made?</label>
+        <select id="swork${i}">
+            <option>Handwritten</option>
+            <option>Printed Black & White (₹5/page)</option>
+            <option>Printed Colour (₹12/page)</option>
+        </select>
+
+        <label>Urgent?</label>
+        <select id="surgent${i}">
+            <option>No</option>
+            <option>Yes (+₹30)</option>
+        </select>
+
+        </div>
+
+        `;
+
+    }
+
+}
+
+/* DEFAULT */
+
+generateSubjects();
+
+/* SUBMIT */
+
+
+function copyToken(){
+
+    let token = document.getElementById("popupCode").innerText;
+    
+    if(token.includes("❌")){
+        return;
+    }
+
+    navigator.clipboard.writeText(token);
+    document.getElementById("copyText").innerHTML = "Copied ✔";
+
+    setTimeout(function(){
+        document.getElementById("copyText").innerHTML = "Copy Code";
+    }, 2000);
+
+}
+
+
+document.addEventListener("contextmenu",
+event => event.preventDefault());
+
+document.addEventListener("keydown",
+function(e){
+
+    if(e.key === "F12"){
+        e.preventDefault();
+    }
+
+    if(e.ctrlKey &&
+    (e.key === "u" || e.key === "U")){
+        e.preventDefault();
+    }
+
+    if(e.ctrlKey &&
+    e.shiftKey &&
+    (e.key === "I" || e.key === "i")){
+        e.preventDefault();
+    }
+
+});
+function submitBooking() {
+    
+    let name = document.getElementById("fullName").value.trim();
+    let phone = document.getElementById("phone").value.trim();
+    let department = document.getElementById("department").value.trim();
+    let section = document.getElementById("section").value.trim();
+    let semester = document.getElementById("semester").value.trim();
+    let roll = document.getElementById("roll").value.trim();
+    let institute = document.getElementById("institute").value.trim();
+    let address = document.getElementById("address").value.trim();
+    
+    let subjectCount = document.getElementById("subjectCount").value;
+    
+    // Validate fields - show popup error instead of alert
+    if (name === "" || phone === "" || department === "" || roll === "" || institute === "" || address === "") {
+        
+        document.getElementById("popupCode").innerHTML = "❌ Fill all required fields";
+        document.getElementById("popup").style.display = "flex";
+        return;
+        
+    }
+    
+    let subjectsData = [];
+    for(let i = 1; i <= subjectCount; i++) {
+        subjectsData.push({
+            name: document.getElementById("subject" + i).value,
+            type: document.getElementById("stype" + i).value,
+            binding: document.getElementById("sbinding" + i).value,
+            pageNumber: document.getElementById("spage" + i).value,
+            border: document.getElementById("sborder" + i).value,
+            workType: document.getElementById("swork" + i).value,
+            urgent: document.getElementById("surgent" + i).value
+        });
+    }
+    
+    let chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let unique = Date.now().toString(36);
+    let random = "";
+    
+    for (let i = 0; i < 4; i++) {
+        random += chars[Math.floor(Math.random() * chars.length)];
+    }
+    
+    let token = "SP" + unique + random;
+    
+    db.ref("Bookings/" + token).set({
+        customerName: name,
+        whatsapp: phone,
+        department: department,
+        section: section,
+        rollNumber: roll,
+        semester: semester,
+        instituteName: institute,
+        instituteAddress: address,
+        bookingToken: token,
+        subjectCount: subjectCount,
+        subjects: subjectsData
+    });
+    
+    document.getElementById("popupCode").innerHTML = token;
+    document.getElementById("popup").style.display = "flex";
+    
+}
+
+function closePopup(){
+    document.getElementById("popup").style.display = "none";
+    document.getElementById("popupTitle").innerHTML = "Booking Submitted";
+    document.getElementById("popupText").innerHTML = "Your booking token is";
+    document.getElementById("copyText").innerHTML = "Copy Code";
+}
+
+</script>
+
+</body>
+</html>
