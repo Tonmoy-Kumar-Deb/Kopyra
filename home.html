@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kopyra App</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+    
+    user-select: none;
+
+}
+.page{
+    overflow-y: hidden;
+    height: calc(100% - 80px);
+    -webkit-overflow-scrolling: touch;
+}
+body{
+    
+    -webkit-user-select: none;
+    user-select: none;
+
+    height:100vh;
+    background:linear-gradient(135deg,#0f172a,#1e293b,#312e81);
+    overflow:hidden;
+}
+#profile{
+    overflow-y: auto;
+}
+.page{
+    position:absolute;
+    width:100%;
+    height:calc(100% - 80px);
+    padding:15px;
+    color:white;
+    display:none;
+}
+#dropdownMenu div:hover{
+    background:rgba(255,255,255,0.1);
+}
+.page.active{
+    display:block;
+}
+
+/* NAV */
+.bottom-nav{
+    position:fixed;
+    bottom:0;
+    width:100%;
+    height:80px;
+    background:rgba(0,0,0,0.4);
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+
+    border-top-left-radius:18px;
+    border-top-right-radius:18px;
+
+    overflow:hidden;
+}
+.slider{
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:50%;
+    height:3px;
+    background:#3b82f6;
+    transition:0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius:10px;
+}
+
+.nav-item{
+    text-align:center;
+    color:white;
+    opacity:0.5;
+    cursor:pointer;
+}
+
+.nav-item.active{
+    opacity:1;
+}
+
+/* INPUT */
+input{
+    width:100%;
+    padding:15px;
+    margin:10px 0;
+    border-radius:10px;
+    border:none;
+    outline:none;
+}
+*{
+    -webkit-user-select: none; /* Chrome, Safari */
+    -ms-user-select: none;     /* IE/Edge */
+    
+}
+
+
+/* allow typing in inputs */
+input{
+    -webkit-user-select: text;
+    user-select: text;
+}
+/* BUTTON */
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    background:#3b82f6;
+    color:white;
+    font-weight:600;
+    margin-top:10px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+<!-- HOME PAGE -->
+<div class="page active" id="home">
+
+    <!-- TOP BAR -->
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <img src="/logo.jpg" style="width:30px;height:30px;border-radius:5px;">
+            <b>KOPYRA</b>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+
+    <!-- STATUS DOT -->
+    <div id="shopStatus" style="
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    font-weight:600;
+">
+
+    <span id="statusDot" style="
+        width:10px;
+        height:10px;
+        border-radius:50%;
+        background:red;
+    "></span>
+
+    <span id="statusText">Shop Closed</span>
+
+</div>
+
+    <!-- 3 DOT MENU -->
+    <i class="fas fa-ellipsis-v" onclick="toggleMenu()" style="cursor:pointer;"></i>
+
+</div>
+
+<div id="dropdownMenu" style="
+    position:fixed;
+    top:55px;
+    right:10px;
+    background:rgba(20,20,20,0.95);
+    border-radius:12px;
+    width:180px;
+    display:none;
+    flex-direction:column;
+    overflow:hidden;
+    z-index:9999;
+    box-shadow:0 10px 25px rgba(0,0,0,0.4);
+">
+
+    <div onclick="openPage('about.html')" style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;">
+        About
+    </div>
+
+    <div onclick="openPage('terms.html')" style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;">
+        Terms & Conditions
+    </div>
+
+    <div onclick="openPage('policy.html')" style="padding:12px;cursor:pointer;">
+        Policy
+    </div>
+
+</div>
+    </div>
+<div style="
+    margin-top:18px;
+    text-align:center;
+    padding:0 10px;
+">
+
+    <h3 style="font-size:16px;font-weight:600;color:white;">
+        Welcome to KOPYRA 👋
+    </h3>
+
+    <p style="
+        font-size:12px;
+        opacity:0.7;
+        margin-top:6px;
+        line-height:1.5;
+        color:white;
+    ">
+        A simple and smart platform for booking, tracking, payments, and receipts — made for everyone.
+    </p>
+
+</div>
+   <div style="
+    height:calc(100vh - 140px);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:50% 10px;
+">
+
+    <div style="
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:30px;
+        width:100%;
+        max-width:420px;
+    ">
+
+        <div onclick="openBook()" style="
+            background:rgba(255,255,255,0.1);
+            padding:25px;
+            border-radius:15px;
+            text-align:center;
+        ">
+            Book Appointment
+        </div>
+
+        <div onclick="openPage('track.html')" style="
+            background:rgba(255,255,255,0.1);
+            padding:25px;
+            border-radius:15px;
+            text-align:center;
+        ">
+            Track Details
+        </div>
+
+        <div onclick="openPage('payment.html')" style="
+            background:rgba(255,255,255,0.1);
+            padding:25px;
+            border-radius:15px;
+            text-align:center;
+        ">
+            Payment
+        </div>
+
+        <div onclick="openPage('receipt.html')" style="
+            background:rgba(255,255,255,0.1);
+            padding:25px;
+            border-radius:15px;
+            text-align:center;
+        ">
+            Receipt
+        </div>
+
+    </div>
+
+</div>
+</div>
+
+
+<!-- PROFILE PAGE -->
+<div class="page" id="profile">
+
+    <!-- TOP BAR -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 style="color:white;letter-spacing:1px;">PROFILE</h3>
+        <span id="createdAt" style="font-size:12px;opacity:0.6;"></span>
+    </div>
+
+    <!-- PROFILE CARD -->
+    <div style="background:rgba(255,255,255,0.08);padding:20px;border-radius:18px;margin-bottom:20px;backdrop-filter:blur(10px);">
+
+        <div style="text-align:center;margin-bottom:15px;">
+            <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#22c55e);margin:auto;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:bold;" id="avatar">
+                U
+            </div>
+        </div>
+
+        <div style="margin-top:15px;">
+
+            <div style="margin-bottom:15px;">
+                <div style="font-size:11px;opacity:0.5;">NAME</div>
+                <div id="showName" style="font-size:15px;font-weight:500;"></div>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <div style="font-size:11px;opacity:0.5;">EMAIL</div>
+                <div id="showEmail" style="font-size:14px;"></div>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <div style="font-size:11px;opacity:0.5;">WHATSAPP</div>
+                <div id="showWhatsapp" style="font-size:14px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- INPUT SECTION (EDIT DETAILS) -->
+    <div style="background:rgba(255,255,255,0.08);padding:20px;border-radius:18px;margin-bottom:20px;backdrop-filter:blur(10px);">
+
+        <input type="text" id="name" placeholder="Enter Name"
+        style="width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:none;outline:none;">
+
+        <input type="text" id="whatsapp" placeholder="Enter WhatsApp"
+        style="width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:none;outline:none;">
+
+        <button onclick="saveData()" style="width:100%;padding:12px;background:#3b82f6;border:none;border-radius:10px;color:white;font-weight:600;">
+            SAVE
+        </button>
+
+        <p id="msg" style="margin-top:10px;font-size:12px;"></p>
+
+    </div>
+
+    <!-- CONTACT SECTION -->
+<div style="text-align:center;opacity:0.85;font-size:13px;margin-top:30px;">
+
+    <div style="margin-bottom:15px;">
+        <div style="font-weight:600;margin-bottom:5px;">CONTACT DETAILS</div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+    <i class="fab fa-whatsapp" style="color:#25D366;"></i>
+    <span>+91 6901983382</span>
+</div>
+
+<div style="display:flex;align-items:center;gap:8px;">
+    <i class="fab fa-instagram" style="color:#E4405F;"></i>
+    <span>@KOPYRA.108</span>
+</div><div style="
+    margin-top:8px;
+    font-size:11px;
+    font-weight:600;
+    color:#ff4d4d;
+    display:flex;
+    align-items:center;
+    gap:6px;
+">
+    <span style="
+        width:8px;
+        height:8px;
+        background:#ff4d4d;
+        border-radius:50%;
+        display:inline-block;
+    "></span>
+    No Calls Available
+</div>
+    </div>
+
+    <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
+        <div style="font-weight:600;margin-bottom:5px;">DEVELOPER</div>
+        <div>Tonmoy Kumar Deb</div>
+        <div style="font-size:11px;opacity:0.6;">Made in Guwahati</div>
+    </div>
+
+</div>
+
+</div>
+
+<!-- NAV -->
+<div class="bottom-nav">
+    
+    <div class="slider" id="slider"></div>
+    
+    <div class="nav-item active" onclick="switchTab('home', this)">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </div>
+    
+    <div class="nav-item" onclick="switchTab('profile', this)">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </div>
+    
+</div>
+<div id="toast" style="
+    position:fixed;
+    bottom:100px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(0,0,0,0.85);
+    color:white;
+    padding:12px 18px;
+    border-radius:12px;
+    font-size:13px;
+    display:none;
+    z-index:99999;
+    box-shadow:0 10px 20px rgba(0,0,0,0.3);
+
+    white-space:nowrap;
+">
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDuM6XcepcHyOiewj8zdnaB-6D8X2SWMM0",
+    authDomain: "kopyra-34598.firebaseapp.com",
+    databaseURL: "https://kopyra-34598-default-rtdb.firebaseio.com",
+    projectId: "kopyra-34598"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let currentUser = null;
+
+/* ---------------- TIME FORMAT (SAFE) ---------------- */
+function getTime(){
+    const d = new Date();
+
+    let h = d.getHours();
+    let m = d.getMinutes();
+
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    m = m < 10 ? "0" + m : m;
+
+    return `${d.getDate()} ${d.toLocaleString('en-US',{month:'short'})} ${d.getFullYear()} ${h}:${m} ${ampm}`;
+}
+
+/* ---------------- LOAD USER SAFELY ---------------- */
+onAuthStateChanged(auth, async (user) => {
+
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    currentUser = user;
+
+    document.getElementById("showEmail").innerText = user.email;
+
+    await loadUserData();
+});
+
+/* ---------------- LOAD DATA FROM FIREBASE ---------------- */
+async function loadUserData(){
+
+    try {
+        const snap = await get(child(ref(db), "users/" + currentUser.uid));
+
+        if (snap.exists()) {
+            const data = snap.val();
+            renderProfile(data);
+        } else {
+            // First time user → create safe record
+            const newData = {
+                name: currentUser.email.split("@")[0],
+                email: currentUser.email,
+                whatsapp: "",
+                createdAt: getTime()
+            };
+
+            await set(ref(db, "users/" + currentUser.uid), newData);
+            renderProfile(newData);
+        }
+
+    } catch (err) {
+        console.log(err);
+        document.getElementById("showName").innerText = "Error loading data";
+    }
+}
+
+/* ---------------- SAVE DATA SAFELY ---------------- */
+window.saveData = async function(){
+
+    const name = document.getElementById("name").value.trim();
+    const whatsapp = document.getElementById("whatsapp").value.trim();
+    const msg = document.getElementById("msg");
+
+    if (!currentUser) {
+        msg.innerText = "User not ready";
+        return;
+    }
+
+    // ✅ VALIDATION (NOW ACTIVE)
+    if (!isValidName(name)) {
+        msg.innerText = "Enter valid full name (letters only, min 3 chars)";
+        return;
+    }
+
+    if (!isValidWhatsApp(whatsapp)) {
+        msg.innerText = "Enter valid 10-digit WhatsApp number";
+        return;
+    }
+
+    try {
+        await update(ref(db, "users/" + currentUser.uid), {
+            name: name,
+            whatsapp: whatsapp
+        });
+
+        msg.innerText = "Saved Successfully ✔";
+
+        document.getElementById("showName").innerText = name;
+        document.getElementById("showWhatsapp").innerText = whatsapp;
+
+        // update avatar instantly
+        document.getElementById("avatar").innerText = name.charAt(0).toUpperCase();
+
+    } catch (err) {
+        msg.innerText = "Save failed";
+    }
+}
+
+/* ---------------- RENDER PROFILE ---------------- */
+function renderProfile(data){
+
+    // name
+    document.getElementById("showName").innerText = data.name || "Not set";
+
+    // whatsapp
+    document.getElementById("showWhatsapp").innerText = data.whatsapp || "Not set";
+
+    // created time
+    document.getElementById("createdAt").innerText = data.createdAt || "";
+
+    // ✅ AUTO AVATAR (first letter of name)
+    const avatar = document.getElementById("avatar");
+
+    if (data.name && data.name.trim() !== "") {
+        avatar.innerText = data.name.trim().charAt(0).toUpperCase();
+    } else {
+        avatar.innerText = "U";
+    }
+}
+/* ---------------- SAFE PAGE SWITCH ---------------- */
+window.showPage = function(page, el){
+
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(page).classList.add("active");
+
+    document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+
+    if (el) el.classList.add("active");
+}
+window.switchTab = function(tab, el) {
+    
+    const home = document.getElementById("home");
+    const profile = document.getElementById("profile");
+    const slider = document.getElementById("slider");
+    
+    if (tab === "home") {
+        home.classList.add("active");
+        profile.classList.remove("active");
+        slider.style.left = "0%";
+    }
+    
+    if (tab === "profile") {
+        profile.classList.add("active");
+        home.classList.remove("active");
+        slider.style.left = "50%";
+    }
+    
+    document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+    el.classList.add("active");
+}
+function isValidName(name){
+    const regex = /^[a-zA-Z ]{3,}$/;
+    return regex.test(name.trim());
+}
+function isValidWhatsApp(num){
+    const regex = /^[6-9][0-9]{9}$/;
+    return regex.test(num.trim());
+}
+window.toggleMenu = function(){
+    const menu = document.getElementById("dropdownMenu");
+
+    menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+}
+
+// close when clicking outside
+document.addEventListener("click", function(e){
+    const menu = document.getElementById("dropdownMenu");
+    const icon = document.querySelector(".fa-ellipsis-v");
+
+    if(menu.style.display === "flex"){
+        if(!menu.contains(e.target) && e.target !== icon){
+            menu.style.display = "none";
+        }
+    }
+});
+import { onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const statusDot = document.getElementById("statusDot");
+const statusText = document.getElementById("statusText");
+
+onValue(ref(db, "shopStatus"), (snap) => {
+    const data = snap.val();
+
+    if (data && data.state === "open") {
+        statusDot.style.background = "#22c55e";
+        statusText.innerText = "Shop Open";
+    } else {
+        statusDot.style.background = "red";
+        statusText.innerText = "Shop Closed";
+    }
+});
+window.openPage = function(url) {
+    if (!url) return;
+    
+    // safety log
+    console.log("Redirecting to:", url);
+    
+    window.location.assign(url);
+}
+window.showToast = function(message){
+
+    const toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.style.display = "block";
+
+    setTimeout(() => {
+        toast.style.display = "none";
+    }, 2500);
+}
+window.openBook = function(){
+
+    const status = document.getElementById("statusText").innerText.trim();
+
+    if(status === "Shop Closed"){
+        showToast("Booking is closed right now!");
+        return;
+    }
+
+    window.location.href = "book.html";
+}
+</script>
+
+</body>
+</html>
