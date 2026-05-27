@@ -8,19 +8,47 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
+
+
+/* allow only input + buttons */
+input, button, textarea{
+  pointer-events: auto;
+}
+
 html, body{
   width:100%;
   overflow-x:hidden;
 }
+.toast{
+  position:fixed;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#0f172a;
+  color:#4ade80;
+  padding:12px 18px;
+  border:1px solid #22c55e;
+  border-radius:12px;
+  font-weight:600;
+  opacity:0;
+  transition:0.3s;
+}
 
+.toast.show{
+  opacity:1;
+}
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
   font-family:'Poppins',sans-serif;
 }
-
+.searchBox input,
+.searchBtn{
+  pointer-events: auto;
+}
 body{
+  pointer-events: none;
   background:linear-gradient(135deg,#0f172a,#1e293b);
   color:#fff;
   min-height:100vh;
@@ -42,74 +70,7 @@ body{
   padding:10px 14px;
   border-radius:10px;
 }
-.progress-wrap{
-  display:flex;
-  justify-content:space-between;
-  margin-top:15px;
-  gap:15px;
-}
 
-/* LEFT LINE */
-.progress-line{
-  position:relative;
-  width:40px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-
-.line{
-  position:absolute;
-  width:4px;
-  height:100%;
-  background:rgba(255,255,255,0.15);
-  border-radius:10px;
-}
-
-.fill{
-  position:absolute;
-  width:4px;
-  background:#22c55e;
-  border-radius:10px;
-  transition:height 0.6s ease;
-  top:0;
-}
-
-/* STEPS */
-.step{
-  width:14px;
-  height:14px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.2);
-  margin:25px 0;
-  z-index:2;
-  transition:0.3s;
-}
-
-.step.active{
-  background:#22c55e;
-  box-shadow:0 0 10px #22c55e;
-}
-
-/* RIGHT PERCENT */
-.percent-box{
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:flex-end;
-  min-width:80px;
-}
-
-.percent{
-  font-size:26px;
-  font-weight:700;
-  color:#22c55e;
-}
-
-.percent small{
-  font-size:12px;
-  opacity:0.7;
-}
 /* SEARCH */
 .searchBox{
   display:flex;
@@ -118,7 +79,20 @@ body{
   overflow:hidden;
   background:rgba(255,255,255,0.12);
 }
+input {
+  pointer-events: auto;
+}
+.page-lock {
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
 
+.page-lock input {
+  user-select: text;
+  -webkit-user-select: text;
+  pointer-events: auto;
+}
 .searchBox input{
   flex:1;
   padding:12px;
@@ -234,7 +208,6 @@ textarea{
   <div class="modal">
     <h3>Give Review</h3>
 
-    <!-- STAR RATING -->
     <div class="stars" id="stars">
       <span onclick="setRating(1)">☆</span>
       <span onclick="setRating(2)">☆</span>
@@ -263,16 +236,30 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let currentToken = "";
+let currentRef = null;
 let selectedRating = 0;
 
-/* SEARCH ORDER */
+/* ---------------- EMPTY VIEW ON LOAD ---------------- */
+window.onload = function(){
+  document.getElementById("result").innerHTML = "";
+};
+
+/* ---------------- SEARCH ORDER ---------------- */
 function searchOrder(){
+
   const token = document.getElementById("tokenInput").value.trim();
   if(!token) return;
 
   currentToken = token;
 
-  db.ref("Bookings/" + token).on("value", snap=>{
+  // stop old listener (IMPORTANT FIX)
+  if(currentRef){
+    currentRef.off();
+  }
+
+  currentRef = db.ref("Bookings/" + token);
+
+  currentRef.on("value", snap=>{
     const data = snap.val();
     const box = document.getElementById("result");
 
@@ -281,21 +268,45 @@ function searchOrder(){
       return;
     }
 
-    let st = data.status || "Pending";
+    let st = data.status;
+
+// if owner has NOT touched order
+if(!st || st === "Not Seen"){
+  st = "Waiting for owner";
+}
     let progress = getPercent(st);
 
-    // ✅ CLEAN HTML ONLY
+    // ✅ IMPORTANT FIX: Pending = 0% + message
+    // normalize status
+const rawStatus = data.status;
+
+// if not touched
+if(!rawStatus || rawStatus === "Not Seen"){
+  st = "Waiting for owner";
+  progress = 0;
+}
+else if(rawStatus === "Pending"){
+  st = "Pending";
+  progress = 50;
+}
+else {
+  st = rawStatus;
+  progress = getPercent(st);
+}
+
     box.innerHTML = `
       <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:15px;">
 
-        <!-- LEFT -->
         <div>
           <h3>${data.customerName || "Customer"}</h3>
           <p>Token: ${token}</p>
           <div class="status ${st.toLowerCase()}">${st}</div>
+
+          ${st === "Waiting for owner" 
+  ? `<p style="margin-top:10px;opacity:0.7;">Waiting for owner to check your request ⏳</p>` 
+  : ""}
         </div>
 
-        <!-- RIGHT PROGRESS -->
         <div style="display:flex;flex-direction:column;align-items:center;">
 
           <div style="height:120px;width:6px;background:rgba(255,255,255,0.2);border-radius:10px;position:relative;overflow:hidden;">
@@ -319,22 +330,28 @@ function searchOrder(){
       </div>
     `;
 
-    // ✅ SMOOTH ANIMATION (FIXED PLACE)
     setTimeout(() => {
-      const fill = document.getElementById("fillBar");
-      if(fill){
-        fill.style.height = progress + "%";
-      }
+  const fill = document.getElementById("fillBar");
+
+  if(fill){
+
+    // reset first (important for smooth animation every update)
+    fill.style.height = "0%";
+
+    setTimeout(() => {
+      fill.style.height = progress + "%";
     }, 100);
 
-    /* AUTO REVIEW */
+  }
+}, 50);
+
     if(st.toLowerCase() === "delivered" && !data.review){
       document.getElementById("reviewBox").style.display="flex";
     }
   });
 }
 
-/* ⭐ STAR RATING */
+/* ---------------- STAR RATING ---------------- */
 function setRating(n){
   selectedRating = n;
 
@@ -351,33 +368,43 @@ function setRating(n){
   });
 }
 
-/* SEND REVIEW */
+/* ---------------- REVIEW ---------------- */
 function sendReview(){
   const text = document.getElementById("reviewText").value.trim();
   if(!text || selectedRating === 0) return;
 
   db.ref("Bookings/" + currentToken + "/review").set({
-    text:text,
+    text,
     rating:selectedRating,
     time:Date.now()
   });
 
   document.getElementById("reviewBox").style.display="none";
-  alert("Review submitted!");
+  showToast("Review submitted successfully ✔");
 }
 
-/* STATUS → PERCENT */
+/* ---------------- STATUS ---------------- */
 function getPercent(status){
+
   switch(status){
     case "Accepted": return 25;
     case "Pending": return 50;
     case "Completed": return 75;
     case "Delivered": return 100;
     case "Rejected": return 0;
-    default: return 10;
+    default: return 0;
   }
 }
-</script>
+function showToast(msg){
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.classList.add("show");
 
+  setTimeout(()=>{
+    toast.classList.remove("show");
+  }, 2000);
+}
+</script>
+<div id="toast" class="toast"></div>
 </body>
-</html>
+  </html>
