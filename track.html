@@ -48,7 +48,7 @@ html, body{
   pointer-events: auto;
 }
 body{
-  pointer-events: none;
+  
   background:linear-gradient(135deg,#0f172a,#1e293b);
   color:#fff;
   min-height:100vh;
@@ -366,12 +366,23 @@ function setRating(n){
       s.innerHTML = "☆";
     }
   });
+
+  console.log("Rating selected:", selectedRating);
 }
 
 /* ---------------- REVIEW ---------------- */
 function sendReview(){
   const text = document.getElementById("reviewText").value.trim();
-  if(!text || selectedRating === 0) return;
+
+  if(selectedRating === 0){
+    alert("Please select rating");
+    return;
+  }
+
+  if(!text){
+    alert("Please write review");
+    return;
+  }
 
   db.ref("Bookings/" + currentToken + "/review").set({
     text,
@@ -407,4 +418,4 @@ function showToast(msg){
 </script>
 <div id="toast" class="toast"></div>
 </body>
-  </html>
+</html>
