@@ -177,10 +177,10 @@ body{
 
 <script>
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "kopyra-34598.firebaseapp.com",
-  databaseURL: "https://kopyra-34598-default-rtdb.firebaseio.com",
-  projectId: "kopyra-34598"
+    apiKey: "AIzaSyDuM6XcepcHyOiewj8zdnaB-6D8X2SWMM0",
+    authDomain: "kopyra-34598.firebaseapp.com",
+    databaseURL: "https://kopyra-34598-default-rtdb.firebaseio.com",
+    projectId: "kopyra-34598"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -206,14 +206,49 @@ function search(){
 
     let status = data.status || "Pending";
 
-    let extra = data.extraCharges || 0;
-    let total = data.totalAmount || 0;
-    let amountSet = total > 0;
+   let extra = Number(data.extraCharges || 0);
 
-    let advance = Math.round(total * 0.5);
-    let final = advance + Number(extra);
+let total = Number(data.totalAmount || 0);
+
+let amountSet = total > 0;
+
+let advance = Number(data.advanceAmount || 0);
+
+let final = Number(data.finalAmount || 0);
 
     let subjects = data.subjects || [];
+    /* VISIBILITY CONTROLS */
+
+let showAdvance = false;
+let showExtra = false;
+let showUpi = false;
+let showDate = false;
+
+/* OWNER NOT SEEN */
+if(!data.seenByOwner){
+
+  status = "Waiting";
+
+}
+
+/* ACCEPTED + AMOUNT SET */
+if(status === "Accepted" && amountSet){
+
+  showAdvance = true;
+  showUpi = true;
+  showDate = true;
+
+}
+
+/* COMPLETED + AMOUNT SET */
+if(status === "Completed" && amountSet){
+
+  showAdvance = true;
+  showExtra = true;
+  showUpi = true;
+  showDate = true;
+
+}
 
     /* ================= LOGIC FIX ================= */
 
@@ -236,17 +271,54 @@ function search(){
       message = "📄 Your advance bill will be generated after price update";
       showTotal = false;
     }
-    else if(status === "Pending"){
-      message = "⏳ Very soon you will get your pending payment bill.";
-      showTotal = false;
-    }
+   else if(status === "Waiting"){
+  message = "⏳ Waiting for owner to see your request.";
+  showTotal = false;
+}
+else if(status === "Pending"){
+  message = "⏳ Very soon you will get your pending payment bill.";
+  showTotal = false;
+}
     else if(status === "Rejected"){
-      message = "❌ This work has been rejected by the owner.";
+      message = `
+<div style="
+position:relative;
+height:120px;
+display:flex;
+align-items:center;
+justify-content:center;
+">
+
+<div style="
+position:absolute;
+transform:rotate(-18deg);
+border:5px solid #ef4444;
+color:#ef4444;
+padding:12px 28px;
+font-size:28px;
+font-weight:800;
+border-radius:12px;
+opacity:0.9;
+">
+REJECTED
+</div>
+
+</div>
+`;
       showTotal = false;
     }
-    else if(status === "Delivered"){
-      message = "🎉 Thank you for using Kopyra!";
-    }
+   else if(status === "Delivered"){
+
+  message = "🎉 Thank you for using Kopyra!";
+
+  showTotal = false;
+
+  showAdvance = false;
+  showExtra = false;
+  showUpi = false;
+  showDate = false;
+
+}
 
     /* ================= UI ================= */
 
@@ -256,7 +328,7 @@ function search(){
         <div class="logoRow">
 
   <img
-    src="Kopyro.jpeg"
+    src="Kopyra.jpeg"
     class="logoImg"
   >
 
@@ -281,35 +353,76 @@ function search(){
         ${subjects.map((s,index)=>`  
   <div class="subject">  
     <span>${s.name}</span>  
-    <span>₹${
-      index === 0 ? (data.subject1 || 0) :
-      index === 1 ? (data.subject2 || 0) :
-      index === 2 ? (data.subject3 || 0) : 0
-    }</span>  
+    <span>${subjects.map((s,index)=>`  
+  <div class="subject">  
+    <span>${s.name}</span>  
+    <span>
+
+      ${
+        showAdvance || showExtra
+        ? `₹${
+            index === 0 ? (data.subject1 || 0) :
+            index === 1 ? (data.subject2 || 0) :
+            index === 2 ? (data.subject3 || 0) : 0
+          }`
+        : "--"
+      }
+
+    </span>  
+  </div>  
+`).join("")}</span>  
   </div>  
 `).join("")}
 
         <hr style="opacity:0.2">
 
-        <div class="row"><span>Advance (50%)</span><span>₹${advance}</span></div>
-        <div class="row"><span>Extra Charges</span><span>₹${extra}</span></div>
+        <div class="row">
+  <span>Advance (50%)</span>
 
-        ${showTotal ? `<div class="total">Total Payable: ₹${final}</div>` : ""}
+  <span>
+    ${showAdvance ? `₹${advance}` : "--"}
+  </span>
+</div>
+
+<div class="row">
+  <span>Extra Charges</span>
+
+  <span>
+    ${showExtra ? `₹${extra}` : "--"}
+  </span>
+</div>
+
+        ${showTotal ? `
+  <div class="total">
+
+    Total Payable:
+
+    ₹${status === "Accepted" ? advance : final}
+
+  </div>
+` : ""}
 
        ${
 (status === "Accepted" || status === "Completed") && data.paymentDateTime
 ? `
-<div class="row">  
-  <span>Date</span>  
-  <span>${
-status === "Accepted"
-? (data.advancePaymentDateTime || "-")
+<div class="row">
 
-: status === "Completed" || status === "Delivered"
-? (data.finalPaymentDateTime || "-")
+  <span>Date</span>
 
-: "-"
-}</span>  
+  <span>
+
+    ${
+      showDate
+      ? (
+          status === "Accepted"
+          ? (data.advancePaymentDateTime || "-")
+          : (data.finalPaymentDateTime || "-")
+        )
+      : "--"
+    }
+
+  </span>
+
 </div>
 `
 : ""
@@ -317,7 +430,15 @@ status === "Accepted"
 
         <hr style="opacity:0.2">
 
-        <div class="row"><span>UPI ID</span><span>${data.upiId || "not set"}</span></div>
+        <div class="row">
+
+  <span>UPI ID</span>
+
+  <span>
+    ${showUpi ? (data.upiId || "not set") : "--"}
+  </span>
+
+</div>
 <div style="
 margin-top:10px;
 color:#ef4444;
@@ -326,7 +447,11 @@ text-align:center;
 ">
 We also take cash payments
 </div>
-        <button class="pay">${payText}</button>
+        ${
+  status !== "Delivered"
+  ? `<button class="pay">${payText}</button>`
+  : ""
+}
 
        
     `;
