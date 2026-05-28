@@ -325,10 +325,10 @@ REJECTED
     box.innerHTML = `
       <div class="bill">
 
-        <div class="logoRow">
+      <div class="logoRow">
 
   <img
-    src="Kopyra.jpeg"
+    src="logo.jpg"
     class="logoImg"
   >
 
@@ -338,24 +338,38 @@ REJECTED
   </div>
 
 </div>
-       
 
-        <h3 style="margin-top:10px">${data.customerName || "Customer"}</h3>
+<h3 style="margin-top:10px">
+  ${data.customerName || "Customer"}
+</h3>
 
-        <div class="row"><span>Token</span><span>${token}</span></div>
-        <div class="row"><span>Status</span><span class="badge ${status.toLowerCase()}">${status}</span></div>
+<div class="row">
+  <span>Token</span>
+  <span>${token}</span>
+</div>
 
-        <p style="margin:10px 0">${message}</p>
+<div class="row">
+  <span>Status</span>
 
-        <hr style="opacity:0.2">
+  <span class="badge ${status.toLowerCase()}">
+    ${status}
+  </span>
+</div>
 
-        <h4>Subjects</h4>
-        ${subjects.map((s,index)=>`  
+<p style="margin:10px 0">
+  ${message}
+</p>
+
+<hr style="opacity:0.2">
+
+<h4>Subjects</h4>
+
+${subjects.map((s,index)=>`  
+
   <div class="subject">  
+
     <span>${s.name}</span>  
-    <span>${subjects.map((s,index)=>`  
-  <div class="subject">  
-    <span>${s.name}</span>  
+
     <span>
 
       ${
@@ -369,30 +383,35 @@ REJECTED
       }
 
     </span>  
+
   </div>  
-`).join("")}</span>  
-  </div>  
+
 `).join("")}
 
-        <hr style="opacity:0.2">
+<hr style="opacity:0.2">
 
-        <div class="row">
+<div class="row">
+
   <span>Advance (50%)</span>
 
   <span>
     ${showAdvance ? `₹${advance}` : "--"}
   </span>
+
 </div>
 
 <div class="row">
+
   <span>Extra Charges</span>
 
   <span>
     ${showExtra ? `₹${extra}` : "--"}
   </span>
+
 </div>
 
-        ${showTotal ? `
+${showTotal ? `
+
   <div class="total">
 
     Total Payable:
@@ -400,11 +419,13 @@ REJECTED
     ₹${status === "Accepted" ? advance : final}
 
   </div>
+
 ` : ""}
 
-       ${
-(status === "Accepted" || status === "Completed") && data.paymentDateTime
+${
+(status === "Accepted" || status === "Completed")
 ? `
+
 <div class="row">
 
   <span>Date</span>
@@ -424,13 +445,14 @@ REJECTED
   </span>
 
 </div>
+
 `
 : ""
 }
 
-        <hr style="opacity:0.2">
+<hr style="opacity:0.2">
 
-        <div class="row">
+<div class="row">
 
   <span>UPI ID</span>
 
@@ -439,6 +461,7 @@ REJECTED
   </span>
 
 </div>
+
 <div style="
 margin-top:10px;
 color:#ef4444;
@@ -447,7 +470,8 @@ text-align:center;
 ">
 We also take cash payments
 </div>
-        ${
+
+${
   status !== "Delivered"
   ? `<button class="pay">${payText}</button>`
   : ""
