@@ -238,12 +238,16 @@ function search(){
         <hr style="opacity:0.2">
 
         <h4>Subjects</h4>
-        ${subjects.map(s=>`
-          <div class="subject">
-            <span>${s.name}</span>
-            <span>₹${s.price || 0}</span>
-          </div>
-        `).join("")}
+        ${subjects.map((s,index)=>`  
+  <div class="subject">  
+    <span>${s.name}</span>  
+    <span>₹${
+      index === 0 ? (data.subject1 || 0) :
+      index === 1 ? (data.subject2 || 0) :
+      index === 2 ? (data.subject3 || 0) : 0
+    }</span>  
+  </div>  
+`).join("")}
 
         <hr style="opacity:0.2">
 
@@ -252,19 +256,28 @@ function search(){
 
         ${showTotal ? `<div class="total">Total Payable: ₹${final}</div>` : ""}
 
-       <div class="row">
-  <span>Date</span>
-  <span>
-    ${data.updatedAt 
-      ? new Date(data.updatedAt).toLocaleString() 
-      : "Not updated yet"}
-  </span>
+       ${
+(status === "Accepted" || status === "Completed") && data.paymentDateTime
+? `
+<div class="row">  
+  <span>Date</span>  
+  <span>${data.paymentDateTime}</span>  
 </div>
+`
+: ""
+}
 
         <hr style="opacity:0.2">
 
         <div class="row"><span>UPI ID</span><span>${data.upiId || "not set"}</span></div>
-
+<div style="
+margin-top:10px;
+color:#ef4444;
+font-weight:700;
+text-align:center;
+">
+We also take cash payments
+</div>
         <button class="pay">${payText}</button>
 
         <div class="small">Assignments made easy</div>
@@ -275,4 +288,4 @@ function search(){
 </script>
 
 </body>
-  </html>
+</html>
