@@ -259,11 +259,50 @@ function search(){
     }
 
     currentData = data;
+
+let advanceVisible = false;
+let finalVisible = false;
+
+let status = data.status || "New";
+
+// ADVANCE RECEIPT
+if(
+  status === "Pending" ||
+  status === "Completed" ||
+  status === "Delivered"
+){
+  advanceVisible = true;
+}
+
+// FINAL RECEIPT
+if(status === "Delivered"){
+  finalVisible = true;
+}
+
+// MESSAGE
+let statusMessage = "";
+
+if(status === "New" || status === "Accepted"){
+  statusMessage = "📄 Bill not available right now";
+}
+
+if(status === "Rejected"){
+  statusMessage = "❌ Work rejected by owner";
+}
     currentToken = token;
 
-    let status = data.status || "Pending";
+    
 
     let html = "";
+
+if(statusMessage){
+
+  html += `
+    <div class="optionCard red">
+      ${statusMessage}
+    </div>
+  `;
+}
 
     if(status === "Rejected"){
 
