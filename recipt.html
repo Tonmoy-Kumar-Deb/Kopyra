@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Receipt - Kopyra</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+.logoImg{
+  width:45px;
+  height:45px;
+  min-width:45px;
+  max-width:45px;
+
+  min-height:45px;
+  max-height:45px;
+
+  border-radius:12px;
+  object-fit:cover;
+
+  display:block;
+}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Poppins;
+}
+
+body{
+  background:linear-gradient(135deg,#0f172a,#1e293b);
+  color:#fff;
+  padding:20px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.back{
+  background:rgba(255,255,255,0.1);
+  border:none;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.searchBox{
+  display:flex;
+  overflow:hidden;
+  border-radius:12px;
+  background:rgba(255,255,255,0.1);
+  margin-bottom:20px;
+}
+
+.searchBox input{
+  flex:1;
+  border:none;
+  outline:none;
+  background:transparent;
+  color:#fff;
+  padding:12px;
+}
+
+.searchBox button{
+  border:none;
+  background:#2563eb;
+  color:#fff;
+  padding:12px 18px;
+  cursor:pointer;
+}
+
+.optionCard{
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.08);
+  padding:16px;
+  border-radius:16px;
+  margin-bottom:14px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.optionCard:hover{
+  transform:translateY(-3px);
+}
+
+.red{
+  border:1px solid rgba(239,68,68,0.5);
+  background:rgba(239,68,68,0.15);
+}
+
+.bill{
+  margin-top:20px;
+  background:#fff;
+  color:#000;
+  border-radius:20px;
+  padding:20px;
+  position:relative;
+  overflow:hidden;
+}
+
+.logoRow{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:15px;
+}
+
+.logo{
+  width:50px;
+  height:50px;
+  border-radius:12px;
+  background:linear-gradient(135deg,#38bdf8,#8b5cf6);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  font-weight:800;
+}
+
+.brand{
+  font-size:22px;
+  font-weight:800;
+}
+
+.tag{
+  font-size:12px;
+  color:#555;
+}
+
+.title{
+  text-align:center;
+  font-size:22px;
+  font-weight:700;
+  margin:15px 0;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin:8px 0;
+}
+
+.line{
+  border-bottom:1px dashed #999;
+  margin:12px 0;
+}
+
+.subject{
+  padding:8px 0;
+  border-bottom:1px solid #ddd;
+}
+
+.paid{
+  position:absolute;
+  top:140px;
+  right:-30px;
+  background:#16a34a;
+  color:#fff;
+  padding:10px 40px;
+  transform:rotate(35deg);
+  font-weight:800;
+  font-size:18px;
+  opacity:0.9;
+}
+
+.rejectStamp{
+  background:#dc2626;
+}
+
+.total{
+  font-size:20px;
+  font-weight:800;
+  margin-top:15px;
+}
+
+.thank{
+  text-align:center;
+  margin-top:25px;
+  font-weight:700;
+  color:#16a34a;
+}
+
+.small{
+  font-size:12px;
+  opacity:0.7;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="top">
+  <button class="back" onclick="history.back()">← Back</button>
+  <div>Receipt</div>
+</div>
+
+<div class="searchBox">
+  <input id="tokenInput" placeholder="Enter Token Number">
+  <button onclick="search()">🔍</button>
+</div>
+
+<div id="options"></div>
+
+<div id="billArea"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "kopyra-34598.firebaseapp.com",
+  databaseURL: "https://kopyra-34598-default-rtdb.firebaseio.com",
+  projectId: "kopyra-34598"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+let currentData = null;
+let currentToken = "";
+
+function search(){
+
+  const token = document.getElementById("tokenInput").value.trim();
+
+  if(!token) return;
+
+  db.ref("Bookings/" + token).once("value", snap=>{
+
+    const data = snap.val();
+
+    const options = document.getElementById("options");
+
+    const billArea = document.getElementById("billArea");
+
+    billArea.innerHTML = "";
+
+    if(!data){
+      options.innerHTML = `
+        <div class="optionCard red">
+          Token not found
+        </div>
+      `;
+      return;
+    }
+
+    currentData = data;
+    currentToken = token;
+
+    let status = data.status || "Pending";
+
+    let html = "";
+
+    if(status === "Rejected"){
+
+      html += `
+        <div class="optionCard red">
+          ❌ Advance Payment Bill Rejected
+        </div>
+
+        <div class="optionCard red">
+          ❌ Final Payment Bill Rejected
+        </div>
+      `;
+    }
+
+    else{
+
+      if(
+        status === "Pending" ||
+        status === "Completed" ||
+        status === "Delivered"
+      ){
+
+        html += `
+          <div class="optionCard"
+          onclick="showBill('advance')">
+
+            <h3>Advance Payment Bill</h3>
+
+            <div class="small">
+              Click to view receipt
+            </div>
+
+          </div>
+        `;
+      }
+
+      if(status === "Delivered"){
+
+        html += `
+          <div class="optionCard"
+          onclick="showBill('final')">
+
+            <h3>Final Payment Bill</h3>
+
+            <div class="small">
+              Click to view receipt
+            </div>
+
+          </div>
+        `;
+      }
+
+    }
+
+    options.innerHTML = html;
+
+  });
+
+}
+
+function showBill(type){
+
+  const data = currentData;
+
+  const token = currentToken;
+
+  const subjects = data.subjects || [];
+
+  const extra = Number(data.extraCharges || 0);
+
+  const total = Number(data.totalAmount || 0);
+
+  const advance = Number(data.advanceAmount || 0);
+
+  const final = Number(data.finalAmount || 0);
+
+  const upi = data.upiId || "Not Set";
+
+  const paidAmount =
+    type === "advance"
+    ? advance
+    : final;
+
+  let subjectHTML = "";
+
+  subjects.forEach((s,index)=>{
+
+    let price = 0;
+
+    if(index === 0){
+      price = data.subject1 || 0;
+    }
+
+    else if(index === 1){
+      price = data.subject2 || 0;
+    }
+
+    else if(index === 2){
+      price = data.subject3 || 0;
+    }
+
+    subjectHTML += `
+      <div class="subject row">
+        <span>${s.name}</span>
+        <span>₹${price}</span>
+      </div>
+    `;
+  });
+
+  let extraHTML = "";
+
+  if(type === "final"){
+
+    extraHTML = `
+      <div class="row">
+        <span>Extra Charges</span>
+        <span>₹${extra}</span>
+      </div>
+    `;
+  }
+
+  document.getElementById("billArea").innerHTML = `
+
+    <div class="bill">
+
+      <div class="paid">
+        PAID
+      </div>
+
+     <div class="logoRow">
+
+  <img 
+    src="Kopyro.jpeg"
+    class="logoImg"
+  >
+
+  <div>
+
+    <div class="brand">
+      Kopyra
+    </div>
+
+    <div class="tag">
+      Assignments made easy
+    </div>
+
+  </div>
+
+</div>
+
+      <div class="title">
+        ${type === "advance"
+          ? "Advance Payment Receipt"
+          : "Final Payment Receipt"}
+      </div>
+
+      <div class="line"></div>
+
+      <div class="row">
+        <span>Name</span>
+        <span>${data.customerName || "-"}</span>
+      </div>
+
+      <div class="row">
+        <span>WhatsApp</span>
+        <span>${data.whatsapp || "-"}</span>
+      </div>
+
+      <div class="row">
+        <span>Department</span>
+        <span>${data.department || "-"}</span>
+      </div>
+
+      <div class="row">
+        <span>Semester</span>
+        <span>${data.semester || "-"}</span>
+      </div>
+
+      <div class="row">
+        <span>Token</span>
+        <span>${token}</span>
+      </div>
+
+      <div class="row">
+        <span>Date</span>
+        <span>
+${
+  type === "advance"
+  ? (data.advancePaymentDateTime || "-")
+  : (data.finalPaymentDateTime || "-")
+}
+</span>
+      </div>
+
+      <div class="line"></div>
+
+      <h3>Work Details</h3>
+
+      ${subjectHTML}
+
+      <div class="line"></div>
+
+      <div class="row">
+        <span>Total Amount</span>
+        <span>₹${total}</span>
+      </div>
+
+      ${
+        type === "advance"
+        ? `
+        <div class="row">
+          <span>Advance Paid</span>
+          <span>₹${advance}</span>
+        </div>
+        `
+        :
+        `
+        <div class="row">
+          <span>Advance Paid</span>
+          <span>₹${advance}</span>
+        </div>
+
+        ${extraHTML}
+
+        <div class="row">
+          <span>Final Paid</span>
+          <span>₹${final}</span>
+        </div>
+        `
+      }
+
+      <div class="total">
+        Total Paid : ₹${paidAmount}
+      </div>
+
+      <div class="line"></div>
+
+      <div class="row">
+        <span>UPI ID</span>
+        <span>${upi}</span>
+      </div>
+
+      <div class="thank">
+        Thank You For Using Kopyra ❤️
+      </div>
+
+    </div>
+
+  `;
+}
+
+</script>
+
+</body>
+</html>
