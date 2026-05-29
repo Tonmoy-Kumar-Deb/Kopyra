@@ -270,36 +270,81 @@ if(status === "Completed" && amountSet){
 
 }
 
-    /* ================= LOGIC FIX ================= */
+  /* ================= LOGIC FIX ================= */
 
-    let message = "";
-    let showTotal = true;
-    let payText = "Pay Via Your UPI Application";
+let message = "";
+let showTotal = true;
+let payText = "Pay Via Your UPI Application";
 
-    if(status === "Accepted" && amountSet){
-      message = "📄 Bill is ready, proceed to advance payment";
-      payText = "Payment via your UPI app";
-    }
-    else if(status === "Completed" && !amountSet){
-  message = "⏳ Final bill coming soon";
+/* ACCEPTED + AMOUNT SET */
+if(status === "Accepted" && amountSet){
+
+  message = "📄 Bill is ready, proceed to advance payment";
+
+  payText = "Payment via your UPI app";
+
+}
+
+/* ACCEPTED + AMOUNT NOT SET */
+else if(status === "Accepted" && !amountSet){
+
+  message = "📄 Your advance bill will be generated after amount set";
+
   showTotal = false;
+
+  showAdvance = false;
+  showExtra = false;
+  showUpi = false;
+  showDate = false;
+
 }
-   else if(status === "Completed" && amountSet){
-  message = "💰 Your bill is ready, proceed to final payment";
+
+/* COMPLETED + AMOUNT NOT SET */
+else if(status === "Completed" && !amountSet){
+
+  message = "⏳ Your bill will be generated after amount set";
+
+  showTotal = false;
+
+  showAdvance = false;
+  showExtra = false;
+  showUpi = false;
+  showDate = false;
+
 }
-    else if(status === "Accepted"){
-      message = "📄 Your advance bill will be generated after price update";
-      showTotal = false;
-    }
-   else if(status === "Waiting"){
+
+/* COMPLETED + AMOUNT SET */
+else if(status === "Completed" && amountSet){
+
+  message = "💰 Bill is ready, proceed to final payment";
+
+  showAdvance = true;
+  showExtra = true;
+  showUpi = true;
+  showDate = true;
+
+}
+
+/* WAITING */
+else if(status === "Waiting"){
+
   message = "⏳ Waiting for owner to see your request.";
+
   showTotal = false;
+
 }
+
+/* PENDING */
 else if(status === "Pending"){
+
   message = "⏳ Very soon you will get your pending payment bill.";
+
   showTotal = false;
+
 }
-    else if(status === "Rejected"){
+
+/* REJECTED */
+else if(status === "Rejected"){
       message = `
 <div style="
 position:relative;
@@ -477,9 +522,12 @@ We also take cash payments
 </div>
 
 ${
-  status !== "Delivered"
-  ? `<button class="pay">${payText}</button>`
-  : ""
+(
+(status === "Accepted" && amountSet) ||
+(status === "Completed" && amountSet)
+)
+? `<button class="pay">${payText}</button>`
+: ""
 }
 
        
