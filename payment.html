@@ -176,6 +176,26 @@ body{
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
+function formatDate(timestamp){
+  if(!timestamp) return "-";
+  
+  const date = new Date(timestamp);
+  
+  const day = date.getDate();
+  const month = date.toLocaleString('en-IN', { month: 'short' });
+  const year = date.getFullYear();
+  
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  
+  hours = hours % 12;
+  hours = hours ? hours : 12; // 0 should be 12
+  
+  const mins = minutes < 10 ? '0' + minutes : minutes;
+  
+  return `${day} ${month} ${year}, ${hours}:${mins} ${ampm}`;
+}
 const firebaseConfig = {
     apiKey: "AIzaSyDuM6XcepcHyOiewj8zdnaB-6D8X2SWMM0",
     authDomain: "kopyra-34598.firebaseapp.com",
@@ -216,7 +236,7 @@ let advance = Number(data.advanceAmount || 0);
 
 let final = Number(data.finalAmount || 0);
 
-    let subjects = data.subjects || [];
+    let subjectList = data.subjects || [];
     /* VISIBILITY CONTROLS */
 
 let showAdvance = false;
@@ -327,8 +347,8 @@ REJECTED
 
       <div class="logoRow">
 
-   <img 
-    src="Kopyro.jpeg"
+  <img
+    src="logo.jpg"
     class="logoImg"
   >
 
@@ -364,31 +384,12 @@ REJECTED
 
 <h4>Subjects</h4>
 
-${subjects.map((s,index)=>`  
-
-  <div class="subject">  
-
-    <span>${s.name}</span>  
-
-    <span>
-
-      ${
-        showAdvance || showExtra
-        ? `₹${
-            index === 0 ? (data.subject1 || 0) :
-            index === 1 ? (data.subject2 || 0) :
-            index === 2 ? (data.subject3 || 0) : 0
-          }`
-        : "--"
-      }
-
-    </span>  
-
-  </div>  
-
+${(subjectList || []).map((item, index)=>`
+  <div class="subject">
+    <span>${item.name || `Subject ${index+1}`}</span>
+    <span>${amountSet ? `₹${item.price || 0}` : "--"}</span>
+  </div>
 `).join("")}
-
-<hr style="opacity:0.2">
 
 <div class="row">
 
@@ -400,15 +401,19 @@ ${subjects.map((s,index)=>`
 
 </div>
 
+${
+showExtra
+? `
 <div class="row">
 
   <span>Extra Charges</span>
 
-  <span>
-    ${showExtra ? `₹${extra}` : "--"}
-  </span>
+  <span>₹${extra}</span>
 
 </div>
+`
+: ""
+}
 
 ${showTotal ? `
 
@@ -433,14 +438,14 @@ ${
   <span>
 
     ${
-      showDate
-      ? (
-          status === "Accepted"
-          ? (data.advancePaymentDateTime || "-")
-          : (data.finalPaymentDateTime || "-")
-        )
-      : "--"
-    }
+  showDate
+  ? (
+      status === "Accepted"
+      ? (data.advancePaymentDateTime ? formatDate(data.advancePaymentDateTime) : "-")
+      : (data.finalPaymentDateTime ? formatDate(data.finalPaymentDateTime) : "-")
+    )
+  : "--"
+}
 
   </span>
 
