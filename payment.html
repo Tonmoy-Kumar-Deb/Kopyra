@@ -8,6 +8,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
+.longText{
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
 body{
   margin:0;
   font-family:Poppins;
@@ -32,21 +37,28 @@ body{
   cursor:pointer;
 }
 
-.searchBox{
-  display:flex;
-  overflow:hidden;
-  border-radius:12px;
-  background:rgba(255,255,255,0.12);
-  margin-bottom:20px;
+
+.searchBox {
+  display: flex;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+  align-items: center;
 }
 
-.searchBox input{
-  flex:1;
-  padding:12px;
-  border:none;
-  outline:none;
-  background:transparent;
-  color:#fff;
+.searchBox input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #fff;
+  padding: 12px;
+}
+body {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .searchBox button{
@@ -105,6 +117,62 @@ body{
   font-size:12px;
   opacity:0.7;
 }
+.popup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.75);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:16px;
+}
+
+/* 🔥 DARK THEME POPUP */
+.popupBox{
+  background:rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  color:#fff;
+  width:100%;
+  max-width:360px;
+  max-height:90vh;
+  overflow-y:auto;
+
+  border-radius:16px;
+  padding:18px;
+
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+.popupBox h3{
+  margin-bottom:10px;
+  color:#ffffff;
+}
+
+.popupBox p,
+.popupBox ul{
+  font-size:13px;
+  color:#cbd5e1;
+}
+
+.popupBox ul li{
+  margin:4px 0;
+}
+
+.popupBox button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+
+  background:#16a34a;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
 .pending{background:#f59e0b33;color:#fbbf24}
 .accepted{background:#2563eb33;color:#60a5fa}
 .completed{background:#22c55e33;color:#4ade80}
@@ -124,7 +192,34 @@ body{
   font-weight:700;
   margin-top:10px;
 }
+.infoRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:10px;
+  color:#cbd5e1;
+  font-size:13px;
+  cursor:pointer;
+}
 
+.infoIcon{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:700;
+}
+
+
+
+
+.hidden{
+  display:none;
+}
 .pay{
   margin-top:15px;
   padding:12px;
@@ -135,7 +230,11 @@ body{
   width:100%;
   font-weight:700;
 }
-
+.topBar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 .small{
   font-size:12px;
   opacity:0.7;
@@ -167,11 +266,60 @@ body{
 
 <div class="searchBox">
   <input id="tokenInput" placeholder="Enter Token Number">
-  <button onclick="search()">🔍</button>
+  <button class="searchBtn" onclick="search()">⌕</button>
+<button class="searchBtn"
+          onclick="openQRScanner()"
+          style="background:#16a34a;">
+    回
+  </button>
 </div>
-
+<div class="infoRow" onclick="showTokenInfo()">
+  <div class="infoIcon">i</div>
+  <div class="infoText">What is Token Number?</div>
+</div>
 <div id="result"></div>
+<div id="tokenPopup" class="popup hidden">
+  <div class="popupBox">
 
+    <h3>Token Number</h3>
+
+    <p>
+      Token Number is a 14 character code linked to your order.
+    </p>
+
+    <ul>
+      <li>It starts with letters (example: SP)</li>
+      <li>Example: SP000000000000</li>
+      <li>It is generated after booking</li>
+    </ul>
+
+    <button onclick="closeTokenInfo()">Close</button>
+
+  </div>
+</div>
+<div id="qrScanner" class="popup hidden">
+  <div class="popupBox">
+
+    <h3>Scan QR Code</h3>
+
+    <!-- CAMERA SCREEN -->
+    <div id="reader"></div>
+
+    <!-- BUTTONS -->
+    <button onclick="startCamera()" class="pay">回 Start Camera</button>
+
+    <label class="pay" style="display:block;text-align:center;margin-top:10px;">
+      ✉ Upload QR Image
+      <input type="file" accept="image/*" onchange="scanFile(this)" hidden>
+    </label>
+
+    <button onclick="closeQRScanner()" style="margin-top:10px;">
+      Close
+    </button>
+
+  </div>
+</div>
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
@@ -190,30 +338,31 @@ function formatDate(timestamp){
   const ampm = hours >= 12 ? 'PM' : 'AM';
   
   hours = hours % 12;
-  hours = hours ? hours : 12; // 0 should be 12
+  hours = hours ? hours : 12;
   
   const mins = minutes < 10 ? '0' + minutes : minutes;
   
   return `${day} ${month} ${year}, ${hours}:${mins} ${ampm}`;
 }
+
 const firebaseConfig = {
-    apiKey: "AIzaSyDuM6XcepcHyOiewj8zdnaB-6D8X2SWMM0",
-    authDomain: "kopyra-34598.firebaseapp.com",
-    databaseURL: "https://kopyra-34598-default-rtdb.firebaseio.com",
-    projectId: "kopyra-34598"
+  apiKey: "AIzaSyDuM6XcepcHyOiewj8zdnaB-6D8X2SWMM0",
+  authDomain: "kopyra-34598.firebaseapp.com",
+  databaseURL: "https://kopyra-34598-default-rtdb.firebaseio.com",
+  projectId: "kopyra-34598"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let currentData = null;
-
-/* SEARCH */
 function search(){
   const token = document.getElementById("tokenInput").value.trim();
-  if(!token) return;
+  if(!token){
+    alert("Enter token number");
+    return;
+  }
 
-  db.ref("Bookings/" + token).on("value", snap=>{
+  db.ref("Bookings/" + token).once("value", snap=>{
     const data = snap.val();
     const box = document.getElementById("result");
 
@@ -222,317 +371,243 @@ function search(){
       return;
     }
 
-    currentData = data;
+    const status = data.status || "Waiting";
 
-    let status = data.status || "Waiting";
+    // -----------------------------
+    // AMOUNT CALCULATION
+    // -----------------------------
+    const subjectTotal =
+      (Number(data.subject1) || 0) +
+      (Number(data.subject2) || 0) +
+      (Number(data.subject3) || 0);
 
-   let extra = Number(data.extraCharges || 0);
+    const extraCharges = Number(data.extraCharges) || 0;
 
-let total = Number(data.totalAmount || 0);
+    const hasAnyAmount = subjectTotal > 0 || extraCharges > 0;
+    const priceNotSet = !hasAnyAmount;
 
-let amountSet = total > 0;
-
-let advance = Number(data.advanceAmount || 0);
-
-let final = Number(data.finalAmount || 0);
-
-    let subjectList = data.subjects || [];
-    /* VISIBILITY CONTROLS */
-
-let showAdvance = false;
-let showExtra = false;
-let showUpi = false;
-let showDate = false;
-
-/* OWNER NOT SEEN */
-if(!data.seenByOwner){
-
-  status = "Waiting";
-
-}
-
-/* ACCEPTED + AMOUNT SET */
-if(status === "Accepted" && amountSet){
-
-  showAdvance = true;
-  showUpi = true;
-  showDate = true;
-
-}
-
-/* COMPLETED + AMOUNT SET */
-if(status === "Completed" && amountSet){
-
-  showAdvance = true;
-  showExtra = true;
-  showUpi = true;
-  showDate = true;
-
-}
-
-  /* ================= LOGIC FIX ================= */
-
-let message = "";
-let showTotal = true;
-let payText = "Pay Via Your UPI Application";
-
-/* ACCEPTED + AMOUNT SET */
-if(status === "Accepted" && amountSet){
-
-  message = "📄 Bill is ready, proceed to advance payment";
-
-  payText = "Payment via your UPI app";
-
-}
-
-/* ACCEPTED + AMOUNT NOT SET */
-else if(status === "Accepted" && !amountSet){
-
-  message = "📄 Your advance bill will be generated after amount set";
-
-  showTotal = false;
-
-  showAdvance = false;
-  showExtra = false;
-  showUpi = false;
-  showDate = false;
-
-}
-
-/* COMPLETED + AMOUNT NOT SET */
-else if(status === "Completed" && !amountSet){
-
-  message = "⏳ Your bill will be generated after amount set";
-
-  showTotal = false;
-
-  showAdvance = false;
-  showExtra = false;
-  showUpi = false;
-  showDate = false;
-
-}
-
-/* COMPLETED + AMOUNT SET */
-else if(status === "Completed" && amountSet){
-
-  message = "💰 Bill is ready, proceed to final payment";
-
-  showAdvance = true;
-  showExtra = true;
-  showUpi = true;
-  showDate = true;
-
-}
-
-/* WAITING */
-else if(status === "Waiting"){
-
-  message = "⏳ Waiting for owner to see your request.";
-
-  showTotal = false;
-
-}
-
-/* PENDING */
-else if(status === "Pending"){
-
-  message = "⏳ Very soon you will get your pending payment bill.";
-
-  showTotal = false;
-
-}
-
-/* REJECTED */
-else if(status === "Rejected"){
-      message = `
-<div style="
-position:relative;
-height:120px;
-display:flex;
-align-items:center;
-justify-content:center;
-">
-
-<div style="
-position:absolute;
-transform:rotate(-18deg);
-border:5px solid #ef4444;
-color:#ef4444;
-padding:12px 28px;
-font-size:28px;
-font-weight:800;
-border-radius:12px;
-opacity:0.9;
-">
-REJECTED
-</div>
-
-</div>
-`;
-      showTotal = false;
+    // -----------------------------
+    // REJECTED
+    // -----------------------------
+    if (status === "Rejected") {
+      box.innerHTML = `
+        <div class="bill" style="text-align:center;color:#f87171;font-weight:700">
+          This token has been rejected by owner
+        </div>
+      `;
+      return;
     }
-   else if(status === "Delivered"){
 
-  message = "🎉 Thank you for using Kopyra!";
+    // -----------------------------
+    // PRICE NOT SET (Accepted / Completed)
+    // -----------------------------
+    if (
+      (status === "Accepted" || status === "Completed") &&
+      priceNotSet
+    ) {
+      box.innerHTML = `
+        <div class="bill" style="text-align:center">
+          <div style="font-weight:700">Token No: ${token}</div>
+          <div style="margin-top:8px;color:#fbbf24">
+            Please wait, price is not set yet
+          </div>
+        </div>
+      `;
+      return;
+    }
 
-  showTotal = false;
+    // -----------------------------
+    // INVALID STATUS
+    // -----------------------------
+    if (status !== "Accepted" && status !== "Completed") {
+      box.innerHTML = `
+        <div class="bill" style="text-align:center">
+          <div>Token No: ${token}</div>
+          <div style="margin-top:8px">Bill not ready</div>
+        </div>
+      `;
+      return;
+    }
 
-  showAdvance = false;
-  showExtra = false;
-  showUpi = false;
-  showDate = false;
+    // -----------------------------
+    // BILL DATA
+    // -----------------------------
+    let billDate = "-";
 
-}
+    if (status === "Accepted") {
+      billDate = data.advancePaymentDateTime || data.createdAt;
+    }
 
-    /* ================= UI ================= */
+    if (status === "Completed") {
+      billDate = data.finalPaymentDateTime || data.createdAt;
+    }
 
+    const total =
+      (Number(data.subject1) || 0) +
+      (Number(data.subject2) || 0) +
+      (Number(data.subject3) || 0);
+
+    const advance = Math.round(total * 0.5);
+    const finalAmount = total + extraCharges;
+
+    const payable = status === "Accepted" ? advance : finalAmount;
+
+    let payText = "Pay Via UPI";
+    if (status === "Accepted") payText = "Pay Advance via UPI";
+    if (status === "Completed") payText = "Pay Final Amount via UPI";
+
+    // -----------------------------
+    // FINAL BILL UI
+    // -----------------------------
     box.innerHTML = `
       <div class="bill">
 
-      <div class="logoRow">
+        <div style="text-align:center;font-size:18px;font-weight:800;color:#60a5fa;margin-bottom:10px">
+          ${status === "Accepted" ? "ADVANCE PAYMENT BILL" : "FINAL PAYMENT BILL"}
+        </div>
 
-  <img
-    src="Kopyro.jpeg"
-    class="logoImg"
-  >
+        <div class="topBar">
+          <div class="logoRow">
+            <img src="logo.jpg" class="logoImg">
+            <div>
+              <div class="logoText">KOPYRA</div>
+              <div class="tag">Assignments made easy</div>
+            </div>
+          </div>
 
-  <div>
-    <div class="logoText">KOPYRA</div>
-    <div class="tag">Assignments made easy</div>
-  </div>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(token)}"
+               style="width:80px;height:80px;border-radius:10px;background:#fff;padding:5px">
+        </div>
 
-</div>
+        <h3>${data.customerName || "Customer"}</h3>
 
-<h3 style="margin-top:10px">
-  ${data.customerName || "Customer"}
-</h3>
+        <div class="row"><span>WhatsApp</span><span>${data.whatsapp || "-"}</span></div>
+        <div class="row"><span>Semester</span><span>${data.semester || "-"}</span></div>
+        <div class="row"><span>Department</span><span>${data.department || "-"}</span></div>
+        <div class="row"><span>Section</span><span>${data.section || "-"}</span></div>
+        <div class="row"><span>Roll No</span><span>${data.rollNumber || "-"}</span></div>
 
-<div class="row">
-  <span>Token</span>
-  <span>${token}</span>
-</div>
+        <div class="row longText">
+          <span>Institute</span>
+          <span style="text-align:right">${data.instituteName || "-"}</span>
+        </div>
 
-<div class="row">
-  <span>Status</span>
+        <div style="margin-left:10px;margin-bottom:8px">
+          <div style="font-size:12px;opacity:0.7">Address</div>
+          <div style="text-align:left;word-break:break-word">
+            ${data.instituteAddress || "-"}
+          </div>
+        </div>
 
-  <span class="badge ${status.toLowerCase()}">
-    ${status}
-  </span>
-</div>
+        <div class="row"><span>Token No</span><span>${token}</span></div>
 
-<p style="margin:10px 0">
-  ${message}
-</p>
+        <hr>
+        <h4>Work Details</h4>
 
-<hr style="opacity:0.2">
+        ${(Array.isArray(data.subjects) ? data.subjects : []).map((item, index)=>`
+          <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:12px;margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-weight:600">
+              <span>${item.name || "Subject " + (index+1)}</span>
+              <span>₹${item.price || 0}</span>
+            </div>
 
-<h4>Subjects</h4>
+            <div style="margin-top:6px;font-size:12px;opacity:0.75;line-height:1.5;text-align:left">
+              Type: ${item.type || "-"} <br>
+              Binding: ${item.binding || "-"} <br>
+              Pages: ${item.pageNumber || "-"} <br>
+              Border: ${item.border || "-"} <br>
+              Work: ${item.workType || "-"} <br>
+              Urgent: ${item.urgent || "-"}
+            </div>
+          </div>
+        `).join("")}
 
-${(subjectList || []).map((item, index)=>`
-  <div class="subject">
-    <span>${item.name || `Subject ${index+1}`}</span>
-    <span>${amountSet ? `₹${item.price || 0}` : "--"}</span>
-  </div>
-`).join("")}
+        <hr>
 
-<div class="row">
+        <div class="row"><span>UPI ID</span><span>${data.upiId || "-"}</span></div>
 
-  <span>Advance (50%)</span>
+        <div class="row">
+          <span>Bill Time</span>
+          <span>${formatDate(billDate)}</span>
+        </div>
 
-  <span>
-    ${showAdvance ? `₹${advance}` : "--"}
-  </span>
+        <div class="row"><span>Total</span><span>₹${total}</span></div>
 
-</div>
+        <div class="row">
+          <span><b>Payable</b></span>
+          <span><b>₹${payable}</b></span>
+        </div>
 
-${
-showExtra
-? `
-<div class="row">
+        <hr>
 
-  <span>Extra Charges</span>
+        <div style="text-align:center;font-size:12px;opacity:0.8">
+          We also accept cash payments
+        </div>
 
-  <span>₹${extra}</span>
+        <button class="pay">${payText}</button>
 
-</div>
-`
-: ""
-}
-
-${showTotal ? `
-
-  <div class="total">
-
-    Total Payable:
-
-    ₹${status === "Accepted" ? advance : final}
-
-  </div>
-
-` : ""}
-
-${
-(status === "Accepted" || status === "Completed")
-? `
-
-<div class="row">
-
-  <span>Date</span>
-
-  <span>
-
-    ${
-  showDate
-  ? (
-      status === "Accepted"
-      ? (data.advancePaymentDateTime ? formatDate(data.advancePaymentDateTime) : "-")
-      : (data.finalPaymentDateTime ? formatDate(data.finalPaymentDateTime) : "-")
-    )
-  : "--"
-}
-
-  </span>
-
-</div>
-
-`
-: ""
-}
-
-<hr style="opacity:0.2">
-
-<div class="row">
-
-  <span>UPI ID</span>
-
-  <span>
-    ${showUpi ? (data.upiId || "not set") : "--"}
-  </span>
-
-</div>
-
-<div style="
-margin-top:10px;
-color:#ef4444;
-font-weight:700;
-text-align:center;
-">
-We also take cash payments
-</div>
-
-${
-(
-(status === "Accepted" && amountSet) ||
-(status === "Completed" && amountSet)
-)
-? `<button class="pay">${payText}</button>`
-: ""
-}
-
-       
+      </div>
     `;
   });
+}
+function showTokenInfo(){
+  document.getElementById("tokenPopup").classList.remove("hidden");
+}
+
+function closeTokenInfo(){
+  document.getElementById("tokenPopup").classList.add("hidden");
+}
+let html5QrCode;
+
+function openQRScanner(){
+  document.getElementById("qrScanner").classList.remove("hidden");
+  startCamera();
+}
+
+function startCamera(){
+
+  html5QrCode = new Html5Qrcode("reader");
+
+  html5QrCode.start(
+    { facingMode: "environment" }, // back camera
+    { fps: 10, qrbox: 250 },
+    (decodedText) => {
+
+      // SUCCESS: QR detected
+      document.getElementById("tokenInput").value = decodedText;
+
+      search(); // auto search token
+
+      closeQRScanner();
+    }
+  );
+}
+
+function scanFile(input){
+
+  const file = input.files[0];
+  if(!file) return;
+
+  const scanner = new Html5Qrcode("reader");
+
+  scanner.scanFile(file, true)
+    .then(decodedText => {
+      document.getElementById("tokenInput").value = decodedText;
+      search();
+      closeQRScanner();
+    })
+    .catch(() => {
+      alert("QR not found in image");
+    });
+}
+
+function closeQRScanner(){
+
+  document.getElementById("qrScanner").classList.add("hidden");
+
+  if(html5QrCode){
+    html5QrCode.stop().then(()=> html5QrCode.clear());
+  }
 }
 </script>
 
