@@ -432,7 +432,6 @@ function searchOrder(){
 
   currentToken = token;
 
-  // stop old listener (IMPORTANT FIX)
   if(currentRef){
     currentRef.off();
   }
@@ -440,6 +439,7 @@ function searchOrder(){
   currentRef = db.ref("Bookings/" + token);
 
   currentRef.on("value", snap=>{
+
     const data = snap.val();
     const box = document.getElementById("result");
 
@@ -448,43 +448,66 @@ function searchOrder(){
       return;
     }
 
-    let st = data.status;
+    const rawStatus = data.status;
 
-// if owner has NOT touched order
-if(!st || st === "Not Seen"){
-  st = "Waiting for owner";
-}
-    let progress = getPercent(st);
+    let st = "";
+    let progress = 0;
 
-    // ✅ IMPORTANT FIX: Pending = 0% + message
-    // normalize status
-const rawStatus = data.status;
+    // 🟡 NOT SET
+    if(!rawStatus || rawStatus === "Not Seen"){
+      st = "Waiting for owner";
+      progress = 0;
+    }
 
-// if not touched
-if(!rawStatus || rawStatus === "Not Seen"){
-  st = "Waiting for owner";
-  progress = 0;
-}
-else if(rawStatus === "Pending"){
-  st = "Pending";
-  progress = 50;
-}
-else {
-  st = rawStatus;
-  progress = getPercent(st);
-}
+    // 🟠 PENDING
+    else if(rawStatus === "Pending"){
+      st = "Pending";
+      progress = 50;
+    }
+
+    // 🔵 ACCEPTED
+    else if(rawStatus === "Accepted"){
+      st = "Accepted";
+      progress = 25;
+    }
+
+    // 🟢 COMPLETED
+    else if(rawStatus === "Completed"){
+      st = "Completed";
+      progress = 75;
+    }
+
+    // 🟢 DELIVERED
+    else if(rawStatus === "Delivered"){
+      st = "Delivered";
+      progress = 100;
+    }
+
+    // 🔴 REJECTED
+    else if(rawStatus === "Rejected"){
+      st = "Rejected";
+      progress = 100;
+    }
+
+    // fallback
+    else{
+      st = rawStatus;
+      progress = 0;
+    }
 
     box.innerHTML = `
-      <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:15px;">
+      <div class='card' style='display:flex;justify-content:space-between;align-items:center;gap:15px;'>
 
         <div>
           <h3>${data.customerName || "Customer"}</h3>
           <p>Token: ${token}</p>
+
           <div class="status ${st.toLowerCase()}">${st}</div>
 
-          ${st === "Waiting for owner" 
-  ? `<p style="margin-top:10px;opacity:0.7;">Waiting for owner to check your request ⏳</p>` 
-  : ""}
+          ${st === "Waiting for owner"
+            ? `<p style="margin-top:10px;opacity:0.7;">Waiting for owner to check your request ⏳</p>`
+            : ""
+          }
         </div>
 
         <div style="display:flex;flex-direction:column;align-items:center;">
@@ -511,23 +534,15 @@ else {
     `;
 
     setTimeout(() => {
-  const fill = document.getElementById("fillBar");
+      const fill = document.getElementById("fillBar");
+      if(fill){
+        fill.style.height = "0%";
+        setTimeout(()=>{
+          fill.style.height = progress + "%";
+        },100);
+      }
+    }, 50);
 
-  if(fill){
-
-    // reset first (important for smooth animation every update)
-    fill.style.height = "0%";
-
-    setTimeout(() => {
-      fill.style.height = progress + "%";
-    }, 100);
-
-  }
-}, 50);
-
-    if(st.toLowerCase() === "delivered" && !data.review){
-      document.getElementById("reviewBox").style.display="flex";
-    }
   });
 }
 
