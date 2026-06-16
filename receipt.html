@@ -9,6 +9,53 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+.actionBtn{
+  margin-top:14px;
+  width:100%;
+  padding:14px 16px;
+
+  border:none;
+  border-radius:14px;
+
+  background:#16a34a; /* professional green */
+  color:#ffffff;
+
+  font-size:15px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  display:block;
+  text-align:center;
+
+  letter-spacing:0.3px;
+
+  box-shadow:0 6px 14px rgba(22,163,74,0.25);
+
+  transition:0.2s ease;
+}
+.scanActions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  margin-top:12px;
+}
+
+.smallBtn{
+  width:100%;
+  padding:12px;
+  font-size:14px;
+  border-radius:12px;
+}
+.actionBtn:hover{
+  background:#15803d;
+  transform:translateY(-2px);
+  box-shadow:0 8px 18px rgba(22,163,74,0.35);
+}
+
+.actionBtn:active{
+  transform:scale(0.98);
+}
 .logoImg{
   width:45px;
   height:45px;
@@ -23,13 +70,10 @@
 
   display:block;
 }
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Poppins;
-}
 
+#qrScanner.hidden{
+  display:none !important;
+}
 body{
   background:linear-gradient(135deg,#0f172a,#1e293b);
   color:#fff;
@@ -51,30 +95,71 @@ body{
   border-radius:10px;
   cursor:pointer;
 }
-
-.searchBox{
-  display:flex;
-  overflow:hidden;
-  border-radius:12px;
-  background:rgba(255,255,255,0.1);
-  margin-bottom:20px;
+#reader{
+  width:100%;
+  margin-top:10px;
 }
 
-.searchBox input{
-  flex:1;
-  border:none;
-  outline:none;
-  background:transparent;
-  color:#fff;
-  padding:12px;
+.popupBox{
+  background:#fff;
+  color:#000;
+  padding:16px;
+  border-radius:16px;
+  width:92%;
+  max-width:360px;
+  max-height:90vh;
+  overflow:auto;
+}
+.searchBox {
+  display: flex;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+  align-items: center;
 }
 
-.searchBox button{
-  border:none;
-  background:#2563eb;
-  color:#fff;
-  padding:12px 18px;
-  cursor:pointer;
+/* input keeps full design */
+.searchBox input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #fff;
+  padding: 12px;
+}
+body {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Poppins;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+/* buttons keep design + don’t break layout */
+.searchBox button {
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  padding: 12px 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* optional: QR button slight style difference */
+.searchBox button:last-child {
+  background: #16a34a;
 }
 
 .optionCard{
@@ -105,7 +190,33 @@ body{
   position:relative;
   overflow:hidden;
 }
+.infoRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:18px;
+  cursor:pointer;
+  color:#cbd5e1;
+  font-size:13px;
+  user-select:none;
+}
 
+.infoRow:hover{
+  color:#ffffff;
+}
+
+.infoIcon{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:12px;
+  color:#fff;
+}
 .logoRow{
   display:flex;
   align-items:center;
@@ -125,7 +236,59 @@ body{
   font-size:22px;
   font-weight:800;
 }
+.popup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.75);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:16px;
+}
 
+.popupBox{
+  background:#fff;
+  color:#000;
+  width:100%;
+  max-width:360px;
+  max-height:90vh;
+  overflow-y:auto;
+  border-radius:16px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+}
+
+.popupBox h3{
+  margin-bottom:10px;
+}
+
+.popupBox p{
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+.popupBox ul{
+  padding-left:18px;
+  font-size:13px;
+  margin-bottom:15px;
+}
+
+.popupBox button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#16a34a;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.hidden{
+  display:none;
+}
 .brand{
   font-size:22px;
   font-weight:800;
@@ -206,20 +369,85 @@ body{
 </div>
 
 <div class="searchBox">
-  <input id="tokenInput" placeholder="Enter Token Number">
-  <button onclick="search()">🔍</button>
-</div>
 
+  <input id="tokenInput" placeholder="Enter Token Number">
+
+  <button onclick="search()">⌕</button>
+
+  <button onclick="openQRScanner()" title="Scan QR">
+    回
+  </button>
+
+</div>
+<div class="infoRow" onclick="showTokenInfo()">
+  <div class="infoIcon">i</div>
+  <div class="infoText">What is Token Number?</div>
+</div>
 <div id="options"></div>
 
 <div id="billArea"></div>
+<div id="tokenPopup" class="popup hidden">
+  <div class="popupBox">
+    <h3>Token Number</h3>
 
+    <p>
+      Token Number is a 14 character code linked to your request.
+    </p>
+
+    <ul>
+      <li>It starts with letter <b>SP</b></li>
+      <li>Example: <b>SP000000000000</b></li>
+      <li>It is generated after your booking.</li>
+    </ul>
+
+    <button onclick="closeTokenInfo()">Close</button>
+  </div>
+</div>
+<div id="qrScanner" class="popup hidden">
+  <div class="popupBox">
+
+   <h3>Scan Token QR</h3>
+
+<!-- CAMERA VIEW -->
+<div id="reader"></div>
+
+<!-- BUTTONS BELOW CAMERA -->
+<div class="scanActions">
+
+  <button onclick="startCamera()" class="actionBtn smallBtn">
+    回 Camera
+  </button>
+
+  <label class="actionBtn smallBtn">
+    ✉️ From File
+    <input type="file" id="qrInputFile" accept="image/*"
+      style="display:none" onchange="scanFile(this)">
+  </label>
+
+</div>
+
+<!-- CLOSE BUTTON -->
+<button onclick="closeQRScanner()" style="margin-top:10px;">
+  Close
+</button>
+
+  </div>
+</div>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
 
-const firebaseConfig={apiKey:"AIzaSyDuM6XcepcHyOiewj8zdnaB-6D8X2SWMM0",authDomain:"kopyra-34598.firebaseapp.com",databaseURL:"https://kopyra-34598-default-rtdb.firebaseio.com",projectId:"kopyra-34598"};
+const firebaseConfig = {
+  apiKey: "AIzaSyDuM6XcepcHyOiewj8zdnaB-6D8X2SWMM0",
+  authDomain: "kopyra-34598.firebaseapp.com",
+  databaseURL: "https://kopyra-34598-default-rtdb.firebaseio.com",
+  projectId: "kopyra-34598"
+};
 
 firebase.initializeApp(firebaseConfig);
 
@@ -320,34 +548,47 @@ if(statusMessage){
         status === "Delivered"
       ){
 
-        html += `
-          <div class="optionCard"
-          onclick="showBill('advance')">
+       html += `
+  <div class="optionCard"
+  onclick="downloadPDF('advance')">
 
-            <h3>Advance Payment Bill</h3>
+    <h3>Advance Payment Bill</h3>
 
-            <div class="small">
-              Click to view receipt
-            </div>
+    <div class="small">
+      Click to download receipt
+    </div>
 
-          </div>
-        `;
+    <button class="actionBtn"
+      onclick="event.stopPropagation();downloadPDF('advance')">
+      Download Adv. Payment PDF
+    </button>
+
+  </div>
+`;
       }
 
       if(status === "Delivered"){
 
-        html += `
-          <div class="optionCard"
-          onclick="showBill('final')">
+        if(status === "Delivered"){
 
-            <h3>Final Payment Bill</h3>
+  html += `
+    <div class="optionCard"
+    onclick="downloadPDF('final')">
 
-            <div class="small">
-              Click to view receipt
-            </div>
+      <h3>Final Payment Bill</h3>
 
-          </div>
-        `;
+      <div class="small">
+        Click to download receipt
+      </div>
+
+      <button class="actionBtn"
+        onclick="event.stopPropagation();downloadPDF('final')">
+        Download Final Payment PDF
+      </button>
+
+    </div>
+  `;
+}
       }
 
     }
@@ -358,197 +599,315 @@ if(statusMessage){
 
 }
 
-function showBill(type){
+function buildReceiptHTML(type){
 
   const data = currentData;
-
   const token = currentToken;
 
   const subjects = data.subjects || [];
-
   const extra = Number(data.extraCharges || 0);
-
   const total = Number(data.totalAmount || 0);
-
   const advance = Number(data.advanceAmount || 0);
-
   const final = Number(data.finalAmount || 0);
-
   const upi = data.upiId || "Not Set";
 
-  const paidAmount =
-    type === "advance"
-    ? advance
-    : final;
+  const paidAmount = type === "advance" ? advance : final;
 
   let subjectHTML = "";
 
-  subjects.forEach((s,index)=>{
+  subjects.forEach((s, index) => {
 
-    let price = 0;
+  subjectHTML += `
+    <div class="subject">
 
-    if(index === 0){
-      price = data.subject1 || 0;
-    }
-
-    else if(index === 1){
-      price = data.subject2 || 0;
-    }
-
-    else if(index === 2){
-      price = data.subject3 || 0;
-    }
-
-    subjectHTML += `
-      <div class="subject row">
-        <span>${s.name}</span>
-        <span>₹${price}</span>
-      </div>
-    `;
-  });
-
-  let extraHTML = "";
-
-  if(type === "final"){
-
-    extraHTML = `
       <div class="row">
-        <span>Extra Charges</span>
-        <span>₹${extra}</span>
-      </div>
-    `;
-  }
-
-  document.getElementById("billArea").innerHTML = `
-
-    <div class="bill">
-
-      <div class="paid">
-        PAID
+        <b>${s.name}</b>
+        <b>₹${s.price || 0}</b>
       </div>
 
-     <div class="logoRow">
+      <div class="small">
+        Type: ${s.type} <br>
+        Binding: ${s.binding} <br>
+        Page No: ${s.pageNumber} <br>
+        Border: ${s.border || "-"}<br>
+        Work: ${s.workType} <br>
+        Urgent: ${s.urgent}
+      </div>
 
-  <img 
-    src="Kopyro.jpeg"
-    class="logoImg"
-  >
-
-  <div>
-
-    <div class="brand">
-      Kopyra
     </div>
+  `;
+});
 
-    <div class="tag">
-      Assignments made easy
+  return `
+    <div class="bill" id="receiptBill">
+
+      <div class="paid">PAID</div>
+
+      
+<div class="logoRow" style="justify-content:space-between;">
+
+  <!-- LEFT: Logo + name -->
+  <div style="display:flex;align-items:center;gap:12px;">
+
+    <img id="logoImg" src="logo.jpg" class="logoImg">
+
+    <div>
+      <div class="brand">Kopyra</div>
+      <div class="tag">Assignments made easy</div>
     </div>
 
   </div>
 
-</div>
+  <!-- RIGHT: QR CODE -->
+  <div id="qrCode"></div>
 
+</div>
       <div class="title">
-        ${type === "advance"
-          ? "Advance Payment Receipt"
-          : "Final Payment Receipt"}
+        ${type === "advance" ? "Advance Payment Receipt" : "Final Payment Receipt"}
       </div>
 
       <div class="line"></div>
 
-      <div class="row">
-        <span>Name</span>
-        <span>${data.customerName || "-"}</span>
-      </div>
-
-      <div class="row">
-        <span>WhatsApp</span>
-        <span>${data.whatsapp || "-"}</span>
-      </div>
-
-      <div class="row">
-        <span>Department</span>
-        <span>${data.department || "-"}</span>
-      </div>
-
-      <div class="row">
-        <span>Semester</span>
-        <span>${data.semester || "-"}</span>
-      </div>
-
-      <div class="row">
-        <span>Token</span>
-        <span>${token}</span>
-      </div>
-
-      <div class="row">
-        <span>Date</span>
-        <span>
-${
-  type === "advance"
-  ? (data.advancePaymentDateTime || "-")
-  : (data.finalPaymentDateTime || "-")
-}
-</span>
-      </div>
+      <div class="row"><span>Name</span><span>${data.customerName}</span></div>
+      <div class="row"><span>WhatsApp</span><span>${data.whatsapp}</span></div>
+      <div class="row"><span>Department</span><span>${data.department}</span></div><div class="row"><span>Section</span><span>${data.section || "-"}</span></div>
+<div class="row"><span>Roll Number</span><span>${data.rollNumber || "-"}</span></div>
+<div class="row"><span>Institute</span><span>${data.instituteName || "-"}</span></div>
+<div class="row"><span>Address</span><span>${data.instituteAddress || "-"}</span></div>
+      <div class="row"><span>Semester</span><span>${data.semester || "-"}</span></div>
+      <div class="row"><span>Token</span><span>${token}</span></div>
 
       <div class="line"></div>
 
       <h3>Work Details</h3>
-
       ${subjectHTML}
 
       <div class="line"></div>
 
-      <div class="row">
-        <span>Total Amount</span>
-        <span>₹${total}</span>
-      </div>
+      <div class="row"><span>Total</span><span>₹${total}</span></div>
+      <div class="row"><span>Advance</span><span>₹${advance}</span></div>
+${type === "advance" ? `
+  <div class="row">
+    <span>Advance Date & Time</span>
+    <span>${formatDateTime(data.advanceTime)}</span>
+  </div>
+` : ""}
+      ${type === "final" ? `
+  <div class="row">
+    <span>Extra</span>
+    <span>₹${extra}</span>
+  </div>
 
-      ${
-        type === "advance"
-        ? `
-        <div class="row">
-          <span>Advance Paid</span>
-          <span>₹${advance}</span>
-        </div>
-        `
-        :
-        `
-        <div class="row">
-          <span>Advance Paid</span>
-          <span>₹${advance}</span>
-        </div>
+  <div class="row">
+    <span>Final</span>
+    <span>₹${final}</span>
+  </div>
 
-        ${extraHTML}
-
-        <div class="row">
-          <span>Final Paid</span>
-          <span>₹${final}</span>
-        </div>
-        `
-      }
-
-      <div class="total">
-        Total Paid : ₹${paidAmount}
-      </div>
+  
+  <div class="row">
+    <span>Final Date & Time</span>
+    <span>${formatDateTime(data.finalTime)}</span>
+  </div>
+` : ""}
+      <div class="total">Paid: ₹${paidAmount}</div>
 
       <div class="line"></div>
 
-      <div class="row">
-        <span>UPI ID</span>
-        <span>${upi}</span>
-      </div>
+      <div class="row"><span>UPI</span><span>${upi}</span></div>
 
-      <div class="thank">
-        Thank You For Using Kopyra ❤️
-      </div>
+      <div class="thank">Thank You ❤️</div>
 
     </div>
-
   `;
 }
+async function downloadPDF(type){
 
+  const { jsPDF } = window.jspdf;
+
+  const tempDiv = document.createElement("div");
+  tempDiv.style.position = "absolute";
+  tempDiv.style.left = "-99999px";
+
+  document.body.appendChild(tempDiv);
+
+  tempDiv.innerHTML = buildReceiptHTML(type);
+
+  const qrContainer = tempDiv.querySelector("#qrCode");
+
+  new QRCode(qrContainer, {
+    text: currentToken,
+    width: 80,
+    height: 80,
+    colorDark: "#000",
+    colorLight: "#ffffff"
+  });
+
+  const element = tempDiv.querySelector("#receiptBill");
+
+  const img = tempDiv.querySelector("#logoImg");
+
+  if (img) {
+    await new Promise(resolve => {
+      img.onload = resolve;
+      img.onerror = resolve;
+    });
+  }
+
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff"
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  // FULL WIDTH FIT (NO LEFT/RIGHT SPACE)
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let finalHeight = imgHeight;
+
+  if (finalHeight > pageHeight) {
+    finalHeight = pageHeight; // prevents overflow
+  }
+
+  pdf.addImage(imgData, "PNG", 0, 0, imgWidth, finalHeight);
+
+  pdf.save(`kopyra-receipt-${currentToken}.pdf`);
+
+  document.body.removeChild(tempDiv);
+}
+
+function showTokenInfo(){
+  document.getElementById("tokenPopup").classList.remove("hidden");
+}
+
+function closeTokenInfo(){
+  document.getElementById("tokenPopup").classList.add("hidden");
+}
+let html5QrCode;
+
+function openQRScanner(){
+  const el = document.getElementById("qrScanner");
+  el.classList.remove("hidden");
+
+  setTimeout(() => {
+    startCamera();
+  }, 300);
+}
+
+function startCamera(){
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert("Camera not supported in this environment. Use desktop Chrome or hosted site.");
+    return;
+  }
+
+  html5QrCode = new Html5Qrcode("reader");
+
+  html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    onScanSuccess
+  ).catch(err => {
+    alert("Camera blocked. Open in HTTPS or Chrome browser.");
+  });
+
+}
+const scanBeep = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+function onScanSuccess(decodedText){
+
+  // 🔊 beep sound
+  scanBeep.play().catch(()=>{});
+
+  stopScanner();
+
+  document.getElementById("qrScanner").classList.add("hidden");
+
+  document.getElementById("tokenInput").value = decodedText;
+
+  search();
+}
+
+async function stopScanner() {
+  try {
+    if (html5QrCode) {
+      const state = html5QrCode.getState();
+      
+      if (state === Html5QrcodeScannerState.SCANNING ||
+        state === Html5QrcodeScannerState.PAUSED) {
+        
+        await html5QrCode.stop();
+      }
+      
+      await html5QrCode.clear();
+      html5QrCode = null;
+    }
+  } catch (err) {
+    console.log("Stop scanner error:", err);
+  }
+}
+
+async function closeQRScanner() {
+  await stopScanner();
+  document.getElementById("qrScanner").classList.add("hidden");
+}
+function scanFile(input){
+
+  if(!input.files.length) return;
+
+  const file = input.files[0];
+
+  const html5QrCode = new Html5Qrcode("reader");
+
+  html5QrCode.scanFile(file, true)
+    .then(decodedText => {
+
+      document.getElementById("qrScanner").classList.add("hidden");
+
+      document.getElementById("tokenInput").value = decodedText;
+
+      search();
+
+    })
+    .catch(err => {
+      alert("QR not detected in image");
+    });
+}
+function formatDateTime(ts){
+  if(!ts) return "-";
+
+  return new Date(ts).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+document.addEventListener("contextmenu", function (e) {
+  e.preventDefault();
+});
+document.addEventListener("keydown", function (e) {
+  if (
+    e.key === "F12" ||
+    (e.ctrlKey && e.shiftKey && e.key === "I") ||
+    (e.ctrlKey && e.shiftKey && e.key === "J") ||
+    (e.ctrlKey && e.key === "U")
+  ) {
+    e.preventDefault();
+  }
+});
+document.getElementById("tokenInput").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") {
+    search();
+  }
+});
 </script>
 
 </body>
