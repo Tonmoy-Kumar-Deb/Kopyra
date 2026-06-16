@@ -19,6 +19,26 @@ html, body{
   width:100%;
   overflow-x:hidden;
 }
+.infoRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:15px;
+  cursor:pointer;
+  color:#cbd5e1;
+  font-size:13px;
+}
+
+.infoIcon{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+}
 .toast{
   position:fixed;
   bottom:30px;
@@ -36,6 +56,26 @@ html, body{
 
 .toast.show{
   opacity:1;
+}
+.searchBox{
+  display:flex;
+  margin-bottom:15px;
+  border-radius:12px;
+  overflow:hidden;
+  background:rgba(255,255,255,0.12);
+}
+
+.searchBtn{
+  width:50px;
+  flex-shrink:0;
+  border:none;
+  background:#2563eb;
+  color:#fff;
+  cursor:pointer;
+}
+
+.searchBtn:last-child{
+  background:#16a34a;
 }
 *{
   margin:0;
@@ -72,12 +112,86 @@ body{
 }
 
 /* SEARCH */
-.searchBox{
+
+.popup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.75);
   display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:16px;
+}
+#reader {
+  width: 100%;
+  height: 300px;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.popupBox{
+  background:#fff;
+  color:#000;
+  width:100%;
+  max-width:360px;
+  max-height:90vh;
+  overflow-y:auto;
+  border-radius:16px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+}
+
+.popupBox h3{
+  margin-bottom:10px;
+}
+
+.popupBox p{
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+.popupBox ul{
+  padding-left:18px;
+  font-size:13px;
   margin-bottom:15px;
-  border-radius:12px;
-  overflow:hidden;
-  background:rgba(255,255,255,0.12);
+}
+
+.popupBox button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#16a34a;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.hidden{
+  display:none;
+}
+
+.infoRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:18px;
+  cursor:pointer;
+  color:#cbd5e1;
+  font-size:13px;
+}
+
+.infoIcon{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
 }
 input {
   pointer-events: auto;
@@ -93,8 +207,11 @@ input {
   -webkit-user-select: text;
   pointer-events: auto;
 }
+
+
 .searchBox input{
   flex:1;
+  min-width:0;
   padding:12px;
   border:none;
   outline:none;
@@ -102,13 +219,7 @@ input {
   color:#fff;
 }
 
-.searchBtn{
-  padding:0 16px;
-  border:none;
-  background:#2563eb;
-  color:#fff;
-  cursor:pointer;
-}
+
 
 /* CARD */
 .card{
@@ -186,6 +297,16 @@ textarea{
   border-radius:10px;
   color:#fff;
 }
+body{
+  -webkit-user-select:none;
+  user-select:none;
+}
+
+input,
+textarea{
+  -webkit-user-select:text;
+  user-select:text;
+}
 </style>
 </head>
 
@@ -197,12 +318,52 @@ textarea{
 </div>
 
 <div class="searchBox">
-  <input id="tokenInput" placeholder="Enter Token Number">
-  <button class="searchBtn" onclick="searchOrder()">🔍</button>
+  <input id="tokenInput"
+       placeholder="Enter Token Number"
+       onkeydown="if(event.key==='Enter') searchOrder()">
+
+  <button class="searchBtn" onclick="searchOrder()">⌕</button>
+
+  <button class="searchBtn"
+          onclick="openQRScanner()"
+          style="background:#16a34a;">
+    回
+  </button>
 </div>
-
+<div class="infoRow" onclick="showTokenInfo()">
+  <div class="infoIcon">i</div>
+  <div class="infoText">What is Token Number?</div>
+</div>
 <div id="result"></div>
+<div id="qrScanner" class="popup hidden">
+  <div class="popupBox">
 
+    <h3>Scan Token QR</h3>
+
+    <div id="reader"></div>
+
+    <button onclick="startCamera()" style="margin-top:10px;">
+      回 Camera
+    </button>
+<input
+  id="filePicker"
+  type="file"
+  accept="image/*"
+  style="display:none"
+  onchange="scanFile(this)">
+
+<button
+  onclick="document.getElementById('filePicker').click()"
+  style="margin-top:10px;">
+  ✉️ From File
+</button>
+
+    <button onclick="closeQRScanner()" style="margin-top:10px;">
+      Close
+    </button>
+
+  </div>
+</div>
 <!-- REVIEW -->
 <div class="overlay" id="reviewBox">
   <div class="modal">
@@ -220,7 +381,26 @@ textarea{
     <button class="submit" onclick="sendReview()">Submit</button>
   </div>
 </div>
+<div id="tokenPopup" class="popup hidden">
+  <div class="popupBox">
 
+    <h3>Token Number</h3>
+
+    <p>
+      Token Number is a 14 character code linked to your request.
+    </p>
+
+    <ul>
+      <li>It starts with letter <b>SP</b></li>
+      <li>Example: <b>SP000000000000</b></li>
+      <li>It is generated after your booking.</li>
+    </ul>
+
+    <button onclick="closeTokenInfo()">Close</button>
+
+  </div>
+</div>
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
@@ -415,7 +595,110 @@ function showToast(msg){
     toast.classList.remove("show");
   }, 2000);
 }
+function showTokenInfo(){
+  document.getElementById("tokenPopup")
+    .classList.remove("hidden");
+}
+
+function closeTokenInfo(){
+  document.getElementById("tokenPopup")
+    .classList.add("hidden");
+}
+
+let html5QrCode;
+
+function openQRScanner(){
+  document.getElementById("qrScanner")
+    .classList.remove("hidden");
+
+  startCamera();
+}
+
+function startCamera(){
+
+  Html5Qrcode.getCameras()
+    .then(devices => {
+
+      if(devices && devices.length){
+
+        html5QrCode = new Html5Qrcode("reader");
+
+        html5QrCode.start(
+          devices[0].id,
+          {
+            fps:10,
+            qrbox:200
+          },
+          onScanSuccess
+        );
+      }else{
+        alert("No camera found");
+      }
+
+    })
+    .catch(err=>{
+      alert("Camera permission denied");
+      console.log(err);
+    });
+}
+
+function onScanSuccess(decodedText){
+
+  stopScanner();
+
+  document.getElementById("qrScanner").classList.add("hidden");
+
+  document.getElementById("tokenInput").value = decodedText;
+
+  searchOrder();   // IMPORTANT
+}
+
+async function stopScanner() {
+  try {
+    if (html5QrCode) {
+      await html5QrCode.stop();
+      await html5QrCode.clear();
+      html5QrCode = null;
+    }
+  } catch (err) {}
+}
+
+async function closeQRScanner() {
+  await stopScanner();
+  document.getElementById("qrScanner").classList.add("hidden");
+}
+
+function scanFile(input){
+
+  if(!input.files.length) return;
+
+  const file = input.files[0];
+
+  const html5QrCode = new Html5Qrcode("reader");
+
+  html5QrCode.scanFile(file, true)
+    .then(decodedText => {
+
+      document.getElementById("qrScanner").classList.add("hidden");
+
+      document.getElementById("tokenInput").value = decodedText;
+
+      searchOrder();   // IMPORTANT
+
+    })
+    .catch(err => {
+      alert("QR not detected in image");
+    });
+}
+
+
+
+
+
+
+
+
 </script>
 <div id="toast" class="toast"></div>
 </body>
-</html>
+  </html>
