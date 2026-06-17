@@ -1,0 +1,430 @@
+<!-- notification.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .notifications-list {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .notification-card {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .notification-card:hover {
+            background: #f8f9ff;
+        }
+        
+        .notification-card:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .notification-content {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .notification-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .notification-type {
+            padding: 4px 8px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        
+        .notification-type.status {
+            background: #28a745;
+        }
+        
+        .notification-type.application {
+            background: #667eea;
+        }
+        
+        .notification-type.refund {
+            background: #dc3545;
+        }
+        
+        .notification-type.personal {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .no-notifications {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+        
+        .no-notifications i {
+            font-size: 60px;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+        
+        #enableNotificationsBtn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        #enableNotificationsBtn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📬 Notifications</h1>
+            <div class="filters" id="filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="personal">Personal/Status</button>
+                <button class="filter-btn" data-filter="application">Application</button>
+                <!-- Refund filter only for owner -->
+                <button class="filter-btn refund-filter" data-filter="refund">Refund</button>
+            </div>
+            
+            <button id="enableNotificationsBtn">🔔 Enable Push Notifications</button>
+        </div>
+        
+        <div class="notifications-list" id="notificationsList">
+            <div class="no-notifications">
+                <i>📭</i>
+                <p>No notifications yet</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getMessaging, isSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+
+        // Your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuM6XcepcHyOiewj8zdnaB-6D8X2SWMM0",
+            authDomain: "kopyra-34598.firebaseapp.com",
+            databaseURL: "https://kopyra-34598-default-rtdb.firebaseio.com",
+            projectId: "kopyra-34598",
+            storageBucket: "kopyra-34598.firebasestorage.app",
+            messagingSenderId: "1075499326033",
+            appId: "1:1075499326033:web:826cf2b862e355c38eb670",
+            measurementId: "G-TJ5XXWFF9Q"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+
+        // Get user type and ID from localStorage
+        const userType = localStorage.getItem('userType') || 'customer'; // 'customer' or 'owner'
+        const userId = localStorage.getItem('userId');
+
+        if (!userId) {
+            alert('Please login first!');
+            window.location.href = 'login.html';
+        }
+
+        console.log('User:', { userType, userId });
+
+        // Setup filters based on user type
+        function setupFilters() {
+            const filtersContainer = document.getElementById('filters');
+            const refundBtn = document.querySelector('.refund-filter');
+
+if (refundBtn && userType === 'customer') {
+    refundBtn.style.display = 'none';
+}
+
+            // Hide refund filter for customers
+            if (userType === 'customer') {
+                refundBtn.style.display = 'none';
+            }
+        }
+
+        setupFilters();
+
+        // Current filter
+        let currentFilter = 'all';
+
+        // Listen for notifications realtime
+        const notificationsRef = ref(database, `notifications/${userId}`);
+
+        onValue(notificationsRef, (snapshot) => {
+            const notificationsList = document.getElementById('notificationsList');
+            const notifications = snapshot.val();
+
+            if (!notifications) {
+                notificationsList.innerHTML = `
+                    <div class="no-notifications">
+                        <i>📭</i>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Convert to array and sort by date (newest first)
+            const notificationArray = Object.entries(notifications)
+                .map(([id, data]) => ({ id, ...data }))
+                .sort((a, b) => b.timestamp - a.timestamp);
+
+            // Filter based on current filter
+            const filteredNotifications = filterNotificationsByType(notificationArray, currentFilter);
+
+            if (filteredNotifications.length === 0) {
+                notificationsList.innerHTML = `
+                    <div class="no-notifications">
+                        <i>📭</i>
+                        <p>No notifications in this category</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render notifications
+            notificationsList.innerHTML = filteredNotifications.map(notif => `
+                <div class="notification-card" 
+                     data-id="${notif.id}"
+                     data-type="${notif.type}"
+                     data-redirect="${notif.redirect}">
+                    <div class="notification-title">${notif.title}</div>
+                    <div class="notification-content">${notif.content}</div>
+                    <div class="notification-meta">
+                        <span class="notification-type ${notif.type}">${notif.type}</span>
+                        <span>${new Date(notif.timestamp).toLocaleString()}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add click listeners to notification cards
+            document.querySelectorAll('.notification-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    handleNotificationClick(this);
+                });
+            });
+        });
+
+        // Filter notifications by type
+        function filterNotificationsByType(notifications, filter) {
+            if (filter === 'all') return notifications;
+
+            return notifications.filter(notif => {
+                if (filter === 'personal') {
+                    return notif.type === 'personal' || notif.type === 'status';
+                }
+                return notif.type === filter;
+            });
+        }
+
+        // Handle notification click
+        function handleNotificationClick(card) {
+            const type = card.dataset.type;
+
+            console.log('Notification clicked:', type);
+
+            // Redirect based on notification type
+            if (type === 'status') {
+                // Status update → redirect to track.html
+                window.location.href = 'track.html';
+            } else if (type === 'application') {
+                // Application update → redirect to notification.html (application filter)
+                window.location.href = 'notification.html?filter=application';
+            } else if (type === 'refund') {
+                // Refund notification → redirect to notification.html (refund filter)
+                window.location.href = 'notification.html?filter=refund';
+            } else {
+                // Personal → just show alert
+                alert(card.querySelector('.notification-title').textContent);
+            }
+        }
+
+        // Filter notifications button clicks
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+            });
+        });
+
+        // Check for URL filter parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const filterParam = urlParams.get('filter');
+        if (filterParam) {
+            const filterBtn = document.querySelector(`[data-filter="${filterParam}"]`);
+            if (filterBtn) {
+                filterBtn.click();
+            }
+        }
+
+        // ======== PUSH NOTIFICATIONS ========
+        const VAPID_KEY = 'BP8BqTFx2h9sx0WdovN1q068j7WSc183XIJPo1Qr5Jffja5kzyD5cI1VE5uSFrKTnnFoFb4I0lkf7uC_XXY5de4';
+
+        // Enable push notifications
+        document.getElementById('enableNotificationsBtn').addEventListener('click', async () => {
+            try {
+                // Check if messaging is supported
+                const supported = await isSupported();
+
+
+                // Request permission
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    alert('Please enable notifications in your browser settings');
+                    return;
+                }
+
+                // Register service worker
+                const registration = await navigator.serviceWorker.register('push.js');
+                console.log('Service Worker registered:', registration);
+
+                // Subscribe to push
+                const pushSubscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(VAPID_KEY)
+                });
+
+                console.log('Push subscribed:', pushSubscription);
+
+                // Save subscription to Firebase
+                await savePushSubscription(pushSubscription);
+
+                document.getElementById('enableNotificationsBtn').textContent = '✅ Notifications Enabled!';
+                document.getElementById('enableNotificationsBtn').style.background = '#218838';
+
+            } catch (error) {
+                console.error('Error enabling push:', error);
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Save push subscription to Firebase
+       async function savePushSubscription(subscription) {
+    const sub = subscription.toJSON();
+    
+    const subscriptionData = {
+        endpoint: sub.endpoint,
+        keys: {
+            p256dh: sub.keys.p256dh,
+            auth: sub.keys.auth
+        },
+        timestamp: Date.now()
+    };
+    
+    await set(ref(database, `push_subscriptions/${userId}`), subscriptionData);
+    console.log('Saved');
+}
+
+        // Convert base64 to Uint8Array
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/-/g, '+')
+                .replace(/_/g, '/');
+
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+    </script>
+</body>
+  </html>
