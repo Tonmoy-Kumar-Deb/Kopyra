@@ -129,66 +129,74 @@ button{
 <div class="page active" id="home">
 
     <!-- TOP BAR -->
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="display:flex;align-items:center;gap:10px;">
-            <img src="Kopyro.jpeg" style="width:30px;height:30px;border-radius:5px;">
-            <b>KOPYRA</b>
+   <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div style="display:flex;align-items:center;gap:10px;">
+        <img src="Kopyro.jpeg" style="width:30px;height:30px;border-radius:5px;">
+        <b>KOPYRA</b>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;">
+
+        <!-- STATUS DOT -->
+        <div id="shopStatus" style="
+            display:flex;
+            align-items:center;
+            gap:8px;
+            font-size:13px;
+            font-weight:600;
+        ">
+            <span id="statusDot" style="
+                width:10px;
+                height:10px;
+                border-radius:50%;
+                background:red;
+            "></span>
+
+            <span id="statusText">Shop Closed</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
 
-    <!-- STATUS DOT -->
-    <div id="shopStatus" style="
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-size:13px;
-    font-weight:600;
-">
+        <!-- 🔔 BELL ICON (NEW) -->
+        <i class="fas fa-bell"
+           onclick="openPage('notification.html')"
+           style="cursor:pointer;font-size:16px;margin:0 5px;">
+        </i>
 
-    <span id="statusDot" style="
-        width:10px;
-        height:10px;
-        border-radius:50%;
-        background:red;
-    "></span>
+        <!-- 3 DOT MENU -->
+        <i class="fas fa-ellipsis-v"
+           onclick="toggleMenu()"
+           style="cursor:pointer;">
+        </i>
 
-    <span id="statusText">Shop Closed</span>
+    </div>
 
+    <div id="dropdownMenu" style="
+        position:fixed;
+        top:55px;
+        right:10px;
+        background:rgba(20,20,20,0.95);
+        border-radius:12px;
+        width:180px;
+        display:none;
+        flex-direction:column;
+        overflow:hidden;
+        z-index:9999;
+        box-shadow:0 10px 25px rgba(0,0,0,0.4);
+    ">
+
+        <div onclick="openPage('about.html')" style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;">
+            About
+        </div>
+
+        <div onclick="openPage('terms.html')" style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;">
+            Terms & Conditions
+        </div>
+
+        <div onclick="openPage('policy.html')" style="padding:12px;cursor:pointer;">
+            Policy
+        </div>
+
+    </div>
 </div>
-
-    <!-- 3 DOT MENU -->
-    <i class="fas fa-ellipsis-v" onclick="toggleMenu()" style="cursor:pointer;"></i>
-
-</div>
-
-<div id="dropdownMenu" style="
-    position:fixed;
-    top:55px;
-    right:10px;
-    background:rgba(20,20,20,0.95);
-    border-radius:12px;
-    width:180px;
-    display:none;
-    flex-direction:column;
-    overflow:hidden;
-    z-index:9999;
-    box-shadow:0 10px 25px rgba(0,0,0,0.4);
-">
-
-    <div onclick="openPage('about.html')" style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;">
-        About
-    </div>
-
-    <div onclick="openPage('terms.html')" style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;">
-        Terms & Conditions
-    </div>
-
-    <div onclick="openPage('policy.html')" style="padding:12px;cursor:pointer;">
-        Policy
-    </div>
-
-</div>
-    </div>
 <div style="
     margin-top:18px;
     text-align:center;
@@ -216,6 +224,7 @@ button{
     justify-content: center;
     align-items: center;
     padding: 20px 10px;
+    padding-bottom: 40%;
     overflow: hidden;
 ">
 
@@ -279,33 +288,49 @@ button{
     </div>
 
     <!-- PROFILE CARD -->
-    <div style="background:rgba(255,255,255,0.08);padding:20px;border-radius:18px;margin-bottom:20px;backdrop-filter:blur(10px);">
+   <div style="background:rgba(255,255,255,0.08);padding:20px;border-radius:18px;margin-bottom:20px;backdrop-filter:blur(10px);">
 
-        <div style="text-align:center;margin-bottom:15px;">
-            <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#22c55e);margin:auto;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:bold;" id="avatar">
-                U
-            </div>
-        </div>
+    <!-- 🔴 LOGOUT BUTTON (TOP) -->
+    <button onclick="logout()" style="
+    padding:8px 14px;
+    
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-weight:600;
+    font-size:12px;
+    width:fit-content;
+    margin-bottom:15px;
+">
+    Logout
+</button>
 
-        <div style="margin-top:15px;">
-
-            <div style="margin-bottom:15px;">
-                <div style="font-size:11px;opacity:0.5;">NAME</div>
-                <div id="showName" style="font-size:15px;font-weight:500;"></div>
-            </div>
-
-            <div style="margin-bottom:15px;">
-                <div style="font-size:11px;opacity:0.5;">EMAIL</div>
-                <div id="showEmail" style="font-size:14px;"></div>
-            </div>
-
-            <div style="margin-bottom:15px;">
-                <div style="font-size:11px;opacity:0.5;">WHATSAPP</div>
-                <div id="showWhatsapp" style="font-size:14px;"></div>
-            </div>
-
+    <!-- AVATAR -->
+    <div style="text-align:center;margin-bottom:15px;">
+        <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#22c55e);margin:auto;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:bold;" id="avatar">
+            U
         </div>
     </div>
+
+    <div style="margin-top:15px;">
+
+        <div style="margin-bottom:15px;">
+            <div style="font-size:11px;opacity:0.5;">NAME</div>
+            <div id="showName" style="font-size:15px;font-weight:500;"></div>
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <div style="font-size:11px;opacity:0.5;">EMAIL</div>
+            <div id="showEmail" style="font-size:14px;"></div>
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <div style="font-size:11px;opacity:0.5;">WHATSAPP</div>
+            <div id="showWhatsapp" style="font-size:14px;"></div>
+        </div>
+
+    </div>
+</div>
 
     <!-- INPUT SECTION (EDIT DETAILS) -->
     <div style="background:rgba(255,255,255,0.08);padding:20px;border-radius:18px;margin-bottom:20px;backdrop-filter:blur(10px);">
@@ -403,9 +428,23 @@ button{
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { 
+    getAuth, 
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+import { 
+    getDatabase, 
+    ref, 
+    set, 
+    get, 
+    child, 
+    update, 
+    onValue 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* ---------------- FIREBASE INIT ---------------- */
 const firebaseConfig = {
     apiKey: "AIzaSyDuM6XcepcHyOiewj8zdnaB-6D8X2SWMM0",
     authDomain: "kopyra-34598.firebaseapp.com",
@@ -418,8 +457,9 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 let currentUser = null;
+let authReady = false;
 
-/* ---------------- TIME FORMAT (SAFE) ---------------- */
+/* ---------------- TIME FORMAT ---------------- */
 function getTime(){
     const d = new Date();
 
@@ -433,8 +473,10 @@ function getTime(){
     return `${d.getDate()} ${d.toLocaleString('en-US',{month:'short'})} ${d.getFullYear()} ${h}:${m} ${ampm}`;
 }
 
-/* ---------------- LOAD USER SAFELY ---------------- */
+/* ---------------- AUTH LISTENER (ONLY ONE) ---------------- */
 onAuthStateChanged(auth, async (user) => {
+
+    authReady = true;
 
     if (!user) {
         window.location.href = "login.html";
@@ -448,17 +490,15 @@ onAuthStateChanged(auth, async (user) => {
     await loadUserData();
 });
 
-/* ---------------- LOAD DATA FROM FIREBASE ---------------- */
+/* ---------------- LOAD USER DATA ---------------- */
 async function loadUserData(){
 
     try {
         const snap = await get(child(ref(db), "users/" + currentUser.uid));
 
         if (snap.exists()) {
-            const data = snap.val();
-            renderProfile(data);
+            renderProfile(snap.val());
         } else {
-            // First time user → create safe record
             const newData = {
                 name: currentUser.email.split("@")[0],
                 email: currentUser.email,
@@ -472,45 +512,38 @@ async function loadUserData(){
 
     } catch (err) {
         console.log(err);
-        document.getElementById("showName").innerText = "Error loading data";
     }
 }
 
-/* ---------------- SAVE DATA SAFELY ---------------- */
+/* ---------------- SAVE DATA ---------------- */
 window.saveData = async function(){
 
     const name = document.getElementById("name").value.trim();
     const whatsapp = document.getElementById("whatsapp").value.trim();
     const msg = document.getElementById("msg");
 
-    if (!currentUser) {
-        msg.innerText = "User not ready";
-        return;
-    }
+    if (!currentUser) return;
 
-    // ✅ VALIDATION (NOW ACTIVE)
     if (!isValidName(name)) {
-        msg.innerText = "Enter valid full name (letters only, min 3 chars)";
+        msg.innerText = "Enter valid name";
         return;
     }
 
     if (!isValidWhatsApp(whatsapp)) {
-        msg.innerText = "Enter valid 10-digit WhatsApp number";
+        msg.innerText = "Enter valid WhatsApp number";
         return;
     }
 
     try {
         await update(ref(db, "users/" + currentUser.uid), {
-            name: name,
-            whatsapp: whatsapp
+            name,
+            whatsapp
         });
 
-        msg.innerText = "Saved Successfully ✔";
+        msg.innerText = "Saved ✔";
 
         document.getElementById("showName").innerText = name;
         document.getElementById("showWhatsapp").innerText = whatsapp;
-
-        // update avatar instantly
         document.getElementById("avatar").innerText = name.charAt(0).toUpperCase();
 
     } catch (err) {
@@ -521,70 +554,52 @@ window.saveData = async function(){
 /* ---------------- RENDER PROFILE ---------------- */
 function renderProfile(data){
 
-    // name
     document.getElementById("showName").innerText = data.name || "Not set";
-
-    // whatsapp
     document.getElementById("showWhatsapp").innerText = data.whatsapp || "Not set";
-
-    // created time
     document.getElementById("createdAt").innerText = data.createdAt || "";
 
-    // ✅ AUTO AVATAR (first letter of name)
     const avatar = document.getElementById("avatar");
-
-    if (data.name && data.name.trim() !== "") {
-        avatar.innerText = data.name.trim().charAt(0).toUpperCase();
-    } else {
-        avatar.innerText = "U";
-    }
+    avatar.innerText = data.name ? data.name.charAt(0).toUpperCase() : "U";
 }
-/* ---------------- SAFE PAGE SWITCH ---------------- */
-window.showPage = function(page, el){
 
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-    document.getElementById(page).classList.add("active");
-
-    document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-
-    if (el) el.classList.add("active");
-}
+/* ---------------- PAGE SWITCH ---------------- */
 window.switchTab = function(tab, el) {
-    
+
     const home = document.getElementById("home");
     const profile = document.getElementById("profile");
     const slider = document.getElementById("slider");
-    
+
     if (tab === "home") {
         home.classList.add("active");
         profile.classList.remove("active");
         slider.style.left = "0%";
     }
-    
+
     if (tab === "profile") {
         profile.classList.add("active");
         home.classList.remove("active");
         slider.style.left = "50%";
     }
-    
+
     document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
     el.classList.add("active");
 }
+
+/* ---------------- VALIDATION ---------------- */
 function isValidName(name){
-    const regex = /^[a-zA-Z ]{3,}$/;
-    return regex.test(name.trim());
+    return /^[a-zA-Z ]{3,}$/.test(name.trim());
 }
+
 function isValidWhatsApp(num){
-    const regex = /^[6-9][0-9]{9}$/;
-    return regex.test(num.trim());
+    return /^[6-9][0-9]{9}$/.test(num.trim());
 }
+
+/* ---------------- MENU ---------------- */
 window.toggleMenu = function(){
     const menu = document.getElementById("dropdownMenu");
-
     menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
 }
 
-// close when clicking outside
 document.addEventListener("click", function(e){
     const menu = document.getElementById("dropdownMenu");
     const icon = document.querySelector(".fa-ellipsis-v");
@@ -595,8 +610,8 @@ document.addEventListener("click", function(e){
         }
     }
 });
-import { onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+/* ---------------- SHOP STATUS ---------------- */
 const statusDot = document.getElementById("statusDot");
 const statusText = document.getElementById("statusText");
 
@@ -611,27 +626,14 @@ onValue(ref(db, "shopStatus"), (snap) => {
         statusText.innerText = "Shop Closed";
     }
 });
+
+/* ---------------- NAVIGATION ---------------- */
 window.openPage = function(url) {
-    if (!url) return;
-    
-    // safety log
-    console.log("Redirecting to:", url);
-    
     window.location.assign(url);
 }
-window.showToast = function(message){
 
-    const toast = document.getElementById("toast");
-    toast.innerText = message;
-    toast.style.display = "block";
-
-    setTimeout(() => {
-        toast.style.display = "none";
-    }, 2500);
-}
 window.openBook = function(){
-
-    const status = document.getElementById("statusText").innerText.trim();
+    const status = document.getElementById("statusText").innerText;
 
     if(status === "Shop Closed"){
         showToast("Booking is closed right now!");
@@ -640,15 +642,24 @@ window.openBook = function(){
 
     window.location.href = "book.html";
 }
-    document.addEventListener("contextmenu", e => e.preventDefault());
-document.addEventListener("keydown", function(e){
-    if(e.ctrlKey && (e.key === "u" || e.key === "U")){
-        e.preventDefault();
-    }
-    if(e.key === "F12"){
-        e.preventDefault();
-    }
-});
+
+/* ---------------- TOAST ---------------- */
+window.showToast = function(message){
+    const toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.style.display = "block";
+
+    setTimeout(() => {
+        toast.style.display = "none";
+    }, 2500);
+}
+window.logout = async function () {
+    await signOut(auth);
+
+    localStorage.clear();
+
+    window.location.href = "login.html";
+}
 </script>
 
 </body>
