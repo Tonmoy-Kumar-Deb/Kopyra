@@ -8,68 +8,42 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-html, body{
-    overflow: hidden;
-    user-select: none;
-}
-    input{
-    user-select: text;
-}
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
     font-family:'Poppins',sans-serif;
 }
-html{
-    background: #0f172a;
+*{
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+input, h2, .subtitle, .developer {
+    -webkit-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
 }
 body{
     height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-
     background:linear-gradient(135deg,#0f172a,#1e293b,#312e81);
-
-    overflow:hidden;
-}
-.developer{
-    margin-top:25px;
-    padding-top:20px;
-    border-top:1px solid rgba(255,255,255,0.15);
-    font-size:11px;
-    opacity:0.6;
-    letter-spacing:0.5px;
 }
 
-.developer span{
-    display:block;
-    margin-top:3px;
-    font-weight:300;
-    opacity:0.8;
-}
-/* APP SCREEN CARD */
 .app{
     width:340px;
-    max-width:90%;
-
-    background:rgba(255,255,255,0.10);
-    backdrop-filter:blur(20px);
-    -webkit-backdrop-filter:blur(20px);
-
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
     border-radius:25px;
-    padding:20px 18px;
-
+    padding:30px 20px;
     text-align:center;
     color:white;
-
-    box-shadow:0 10px 40px rgba(0,0,0,0.5);
-
-    overflow:hidden;
+    box-shadow:0 0 40px rgba(0,0,0,0.4);
+    animation:fadeIn 1s ease;
 }
 
-/* LOGO */
 .logo{
     width:70px;
     height:70px;
@@ -78,7 +52,6 @@ body{
     box-shadow:0 0 20px rgba(255,255,255,0.2);
 }
 
-/* TITLE */
 h2{
     font-size:22px;
     letter-spacing:2px;
@@ -90,7 +63,6 @@ h2{
     margin-bottom:20px;
 }
 
-/* INPUTS */
 .input{
     width:100%;
     margin:10px 0;
@@ -112,7 +84,6 @@ input::placeholder{
     color:#cbd5e1;
 }
 
-/* BUTTONS */
 button{
     width:100%;
     padding:14px;
@@ -138,7 +109,6 @@ button:hover{
     transform:scale(1.03);
 }
 
-/* MESSAGE */
 #msg{
     margin-top:12px;
     font-size:13px;
@@ -146,18 +116,27 @@ button:hover{
     opacity:0.9;
 }
 
-/* LOADING */
-.loading{
-    display:none;
-    margin-top:10px;
-    font-size:13px;
-    opacity:0.8;
-}
 
-/* ANIMATION */
+
 @keyframes fadeIn{
     from{opacity:0; transform:translateY(30px);}
     to{opacity:1; transform:translateY(0);}
+}
+
+.developer{
+    margin-top:25px;
+    padding-top:20px;
+    border-top:1px solid rgba(255,255,255,0.15);
+    font-size:11px;
+    opacity:0.6;
+    letter-spacing:0.5px;
+}
+
+.developer span{
+    display:block;
+    margin-top:3px;
+    font-weight:300;
+    opacity:0.8;
 }
 </style>
 </head>
@@ -165,9 +144,7 @@ button:hover{
 <body>
 
 <div class="app">
-
-    <img src="Kopyro.jpeg" class="logo">
-
+    <img src="logo.jpg" class="logo">
     <h2>KOPYRA</h2>
     <div class="subtitle">Assignments Made Easy</div>
 
@@ -183,24 +160,28 @@ button:hover{
     <button class="login" onclick="login()">Login</button>
 
     <div id="msg"></div>
-    <div class="loading" id="loading">Please wait...</div>
-        <!-- Add this HTML inside the .app div, after the loading div -->
-<div class="developer">
-    Developer Tonmoy Kumar Deb
-    <span>Made in Guwahati</span>
-</div>
+    <div class="loading" id="loading"></div>
+    
+    <div class="developer">
+        Developer Tonmoy Kumar Deb
+        <span>Made in Guwahati</span>
+    </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDuM6XcepcHyOiewj8zdnaB-6D8X2SWMM0",
     authDomain: "kopyra-34598.firebaseapp.com",
     databaseURL: "https://kopyra-34598-default-rtdb.firebaseio.com",
-    projectId: "kopyra-34598"
+    projectId: "kopyra-34598",
+    storageBucket: "kopyra-34598.firebasestorage.app",
+    messagingSenderId: "1075499326033",
+    appId: "1:1075499326033:web:826cf2b862e355c38eb670",
+    measurementId: "G-TJ5XXWFF9Q"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -209,22 +190,46 @@ const auth = getAuth(app);
 const msg = document.getElementById("msg");
 const loading = document.getElementById("loading");
 
+// Auto-login check: if user is already logged in, redirect to home
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        
+        localStorage.setItem("userId", user.uid);
+        localStorage.setItem("userEmail", user.email);
+        localStorage.setItem("userType", "customer");
+        localStorage.setItem("isLoggedIn", "true");
+        window.location.href = "home.html";
+    }
+});
+
 /* SIGNUP */
 window.signup = function(){
     let email = document.getElementById("email").value;
     let pass = document.getElementById("password").value;
 
+    if (!email || !pass) {
+        msg.innerText = "Please fill all fields ❌";
+        return;
+    }
+
     loading.style.display = "block";
+    msg.innerText = "";
 
     createUserWithEmailAndPassword(auth, email, pass)
     .then(() => {
         loading.style.display = "none";
         msg.innerText = "Account created ✔";
+        
+        // Auto-login after signup
+        setTimeout(() => {
+            msg.innerText = "";
+            login();
+        }, 1000);
     })
     .catch(() => {
-        loading.style.display = "none";
-        msg.innerText = "Signup failed";
-    });
+    loading.style.display = "none";
+    msg.innerText = "Signup failed. Try again ❌";
+});
 }
 
 /* LOGIN */
@@ -232,27 +237,73 @@ window.login = function(){
     let email = document.getElementById("email").value;
     let pass = document.getElementById("password").value;
 
+    if (!email || !pass) {
+        msg.innerText = "Please fill all fields ❌";
+        return;
+    }
+
+    msg.innerText = "";
+    loading.innerText = "Checking credentials...";
     loading.style.display = "block";
 
     signInWithEmailAndPassword(auth, email, pass)
-    .then(() => {
-        window.location.href = "home.html";
+    .then((userCredential) => {
+
+        const user = userCredential.user;
+
+        localStorage.setItem("userId", user.uid);
+        localStorage.setItem("userEmail", user.email);
+        localStorage.setItem("userType", "customer");
+        localStorage.setItem("isLoggedIn", "true");
+
+        loading.innerText = "Login successful ✔";
+
+        setTimeout(() => {
+            window.location.href = "home.html";
+        }, 800);
+
     })
     .catch(() => {
         loading.style.display = "none";
-        msg.innerText = "Invalid login";
+        msg.innerText = "Invalid email or password ❌";
     });
 }
-    document.addEventListener("contextmenu", e => e.preventDefault());
-document.addEventListener("keydown", function(e){
-    if(e.ctrlKey && (e.key === "u" || e.key === "U")){
-        e.preventDefault();
+
+/* ======== KEYBOARD SUPPORT (Ctrl+C, Ctrl+V, Enter) ======== */
+document.addEventListener("keydown", function(e) {
+    // Ctrl+C (Copy)
+    if (e.ctrlKey && e.key === "c") {
+        const active = document.activeElement;
+        if (active && active.tagName === "INPUT") {
+            const selected = active.value.substring(active.selectionStart, active.selectionEnd);
+            if (selected) {
+                navigator.clipboard.writeText(selected);
+            }
+        }
     }
-    if(e.key === "F12"){
+    
+    // Ctrl+V (Paste)
+    if (e.ctrlKey && e.key === "v") {
+        const active = document.activeElement;
+        if (active && active.tagName === "INPUT") {
+            e.preventDefault();
+            navigator.clipboard.readText().then(text => {
+                const start = active.selectionStart;
+                const end = active.selectionEnd;
+                active.value = active.value.substring(0, start) + text + active.value.substring(end);
+                active.selectionStart = active.selectionEnd = start + text.length;
+            });
+        }
+    }
+    
+    // Enter key (Login)
+    if (e.key === "Enter") {
         e.preventDefault();
+        if (loading.style.display !== "block") {
+            login();
+        }
     }
 });
 </script>
-
 </body>
-      </html>
+    </html>
